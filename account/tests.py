@@ -1,6 +1,9 @@
 import re
-from django.test import TestCase, Client
+
+from django.test import Client, TestCase
+
 from .models import Account
+
 
 class RegistrationTest(TestCase):
     """

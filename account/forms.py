@@ -1,8 +1,10 @@
-from django.contrib.auth.forms import UserCreationForm
-from django.core.validators import EmailValidator, MinLengthValidator, MaxLengthValidator
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.core.validators import (EmailValidator, MaxLengthValidator,
+                                    MinLengthValidator)
+
 from .models import Account
- 
+
 
 class SignUpForm(UserCreationForm):
     """
