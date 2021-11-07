@@ -1,4 +1,4 @@
-{% extends 'TwitterFunc/base.html' %}
+{% extends 'account/base.html' %}
 
 {% block content %}
     <div class="text-center">
@@ -6,7 +6,7 @@
             <strong>ユーザの登録が完了しました！</strong>
         </h2>
 
-        <a class="btn btn-link ripple-surface ripple-surface-dark" data-mdb-ripple-color="dark" style="min-width: 74px; margin-top: 10mm;" href="{% url 'start' %}" role="button">
+        <a class="btn btn-link ripple-surface ripple-surface-dark" data-mdb-ripple-color="dark" style="min-width: 74px; margin-top: 10mm;" href="{% url 'account:start' %}" role="button">
             戻る
         </a>
     </div>

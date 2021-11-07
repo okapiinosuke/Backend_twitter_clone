@@ -11,7 +11,7 @@ def start(request):
     最初にアクセスした際に見れるページ
     """
 
-    return render(request, 'TwitterFunc/start.html')
+    return render(request, 'account/start.html')
 
 
 def register(request):
@@ -27,7 +27,7 @@ def register(request):
     else:
         form = SignUpForm()
 
-    return render(request, 'TwitterFunc/register.html', {'form': form})
+    return render(request, 'account/register.html', {'form': form})
 
 
 def complete(request):
@@ -35,7 +35,7 @@ def complete(request):
     ユーザ登録が完了した際に見れるページ
     """
 
-    return render(request, 'TwitterFunc/complete.html')
+    return render(request, 'account/complete.html')
 
 
 def login(request):
@@ -43,4 +43,4 @@ def login(request):
     ログインをする際に見れるページ（遷移確認のために仮で作成）
     """
 
-    return render(request, 'TwitterFunc/login.html')
+    return render(request, 'account/login.html')
