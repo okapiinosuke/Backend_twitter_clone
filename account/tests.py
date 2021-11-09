@@ -15,7 +15,9 @@ class RegistrationTest(TestCase):
         正しいフォームの場合
         """
 
-        self.client = Client()
+        saved_accounts = Account.objects.all()
+        self.assertEqual(saved_accounts.count(), 0)
+
         response = self.client.post(
             path='/register/',
             data={
@@ -29,6 +31,9 @@ class RegistrationTest(TestCase):
         saved_accounts = Account.objects.all()
         self.assertEqual(response.status_code, 302)
         self.assertEqual(saved_accounts.count(), 1)
+
+        filtered_accounts = Account.objects.filter(email="sample@example.com")
+        self.assertEqual(filtered_accounts.count(), 1)
 
 
     def test_is_lack_of_username(self):
@@ -54,7 +59,7 @@ class RegistrationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(saved_accounts.count(), 0)
         self.assertEqual(len(error_list), 1)
-        self.assertEqual(error_list[0], "Please enter your username")
+        self.assertEqual(error_list[0], "ユーザ名を入れて下さい．")
     
     def test_is_too_long_username(self):
         """
@@ -104,7 +109,7 @@ class RegistrationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(saved_accounts.count(), 0)
         self.assertEqual(len(error_list), 1)
-        self.assertEqual(error_list[0], "Please enter your email")
+        self.assertEqual(error_list[0], "メールアドレスを入れて下さい．")
 
     def test_is_invalid_email(self):
         """
@@ -154,8 +159,8 @@ class RegistrationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(saved_accounts.count(), 0)
         self.assertEqual(len(error_list), 2)
-        self.assertEqual(error_list[0], "Please enter your password1")
-        self.assertEqual(error_list[1], "Please enter your password2")
+        self.assertEqual(error_list[0], "パスワードを入れて下さい．")
+        self.assertEqual(error_list[1], "もう一度同じパスワードを入力してください．")
 
     def test_is_too_short_password(self):
         """

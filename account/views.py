@@ -1,13 +1,10 @@
 from django.contrib.auth import authenticate, login
-from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
-from django.urls import reverse_lazy
-from django.views.generic.edit import CreateView
 
 from .forms import SignUpForm
 
 
-def start(request):
+def start_view(request):
     """
     最初にアクセスした際に見れるページ
     """
@@ -15,7 +12,7 @@ def start(request):
     return render(request, 'account/start.html')
 
 
-def register(request):
+def register_view(request):
     """
     ユーザ登録をする際にアクセスするページ
     """
@@ -31,7 +28,7 @@ def register(request):
     return render(request, 'account/register.html', {'form': form})
 
 
-def complete(request):
+def complete_view(request):
     """
     ユーザ登録が完了した際に見れるページ
     """
@@ -39,7 +36,7 @@ def complete(request):
     return render(request, 'account/complete.html')
 
 
-def login(request):
+def login_view(request):
     """
     ログインをする際に見れるページ（遷移確認のために仮で作成）
     """

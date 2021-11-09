@@ -14,20 +14,20 @@ class SignUpForm(UserCreationForm):
     email = forms.CharField(
         required=True,
         label='メールアドレス',
-        error_messages={'required': 'Please enter your email'},
+        error_messages={'required': 'メールアドレスを入れて下さい．'},
         validators=[EmailValidator()])
     username = forms.CharField(
         required=True,
         label='ユーザ名',
         help_text='文字数は，1文字以上30文字以下です．',
-        error_messages={'required': 'Please enter your username'},
+        error_messages={'required': 'ユーザ名を入れて下さい．'},
         validators=[MinLengthValidator(1),
         MaxLengthValidator(30)])
     password1 = forms.CharField(
         required=True,
         label='パスワード',
         help_text='文字数は，8文字以上20文字以下です．',
-        error_messages={'required': 'Please enter your password1'},
+        error_messages={'required': 'パスワードを入れて下さい．'},
         validators=[MinLengthValidator(8),
         MaxLengthValidator(20)],
         widget=forms.PasswordInput)
@@ -35,7 +35,7 @@ class SignUpForm(UserCreationForm):
         required=True,
         label='パスワードの再入力',
         help_text='もう一度同じパスワードを入力してください．',
-        error_messages={'required': 'Please enter your password2'},
+        error_messages={'required': 'もう一度同じパスワードを入力してください．'},
         validators=[MinLengthValidator(8),
         MaxLengthValidator(20)],
         widget=forms.PasswordInput)
