@@ -1,5 +1,5 @@
-from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect, render
+from django.urls import reverse
 
 from .forms import SignUpForm
 
@@ -21,7 +21,8 @@ def register_view(request):
         form = SignUpForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('/register/complete')
+            state = "complete"
+            return redirect(reverse('account:complete'))
     else:
         form = SignUpForm()
 
