@@ -1,5 +1,3 @@
-import re
-
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -33,15 +31,12 @@ class RegistrationTest(TestCase):
             }
         )
 
-        # form
-
         saved_accounts = Account.objects.all()
         self.assertEqual(response.status_code, 302)
         self.assertEqual(saved_accounts.count(), 1)
 
         filtered_accounts = Account.objects.filter(email="sample@example.com")
         self.assertEqual(filtered_accounts.count(), 1)
-
 
     def test_is_lack_of_username(self):
         """
