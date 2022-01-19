@@ -23,8 +23,7 @@ def register_view(request):
             form.save()
             state = "complete"
             return redirect(reverse('account:complete'))
-    else:
-        form = SignUpForm()
+    form = SignUpForm()
 
     return render(request, 'account/register.html', {'form': form})
 

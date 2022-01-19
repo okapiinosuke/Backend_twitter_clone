@@ -40,7 +40,7 @@ class RegistrationTest(TestCase):
 
     def test_is_lack_of_username(self):
         """
-        ユーザ名を入れ忘れた場合
+        ユーザー名を入れ忘れた場合
         """
         
         data = {
@@ -53,11 +53,11 @@ class RegistrationTest(TestCase):
         f = SignUpForm(data)
 
         self.assertEqual(f.is_valid(), False)
-        self.assertEqual(f.errors['username'][0], "ユーザ名を入れて下さい．")
+        self.assertEqual(f.errors['username'][0], "ユーザー名を入れて下さい．")
     
     def test_is_too_long_username(self):
         """
-        ユーザ名が長すぎる（31文字以上）の場合
+        ユーザー名が長すぎる（31文字以上）の場合
         """
 
         data = {
@@ -196,7 +196,7 @@ class RegistrationTest(TestCase):
 
     def test_password2_is_similar_to_username(self):
         """
-        パスワードがユーザ名に似過ぎている場合
+        パスワードがユーザー名に似過ぎている場合
         """
 
         data = {
