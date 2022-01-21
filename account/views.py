@@ -16,6 +16,7 @@ def register_view(request):
     """
     ユーザ登録をする際にアクセスするページ
     """
+    form = SignUpForm()
 
     if request.method == 'POST':
         form = SignUpForm(request.POST)

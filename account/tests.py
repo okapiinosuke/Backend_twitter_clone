@@ -50,6 +50,17 @@ class RegistrationTest(TestCase):
             'password2': 'instance1',
         }
 
+        saved_accounts = Account.objects.all()
+        self.assertEqual(saved_accounts.count(), 0)
+
+        response = self.client.post(
+            path=self.path,
+            data=data
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(saved_accounts.count(), 0)
+
+
         f = SignUpForm(data)
 
         self.assertEqual(f.is_valid(), False)
@@ -66,6 +77,16 @@ class RegistrationTest(TestCase):
             'password1': 'instance1',
             'password2': 'instance1',
         }
+
+        saved_accounts = Account.objects.all()
+        self.assertEqual(saved_accounts.count(), 0)
+
+        response = self.client.post(
+            path=self.path,
+            data=data
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(saved_accounts.count(), 0)
 
         f = SignUpForm(data)
 
@@ -84,6 +105,16 @@ class RegistrationTest(TestCase):
             'password2': 'instance1',
         }
 
+        saved_accounts = Account.objects.all()
+        self.assertEqual(saved_accounts.count(), 0)
+
+        response = self.client.post(
+            path=self.path,
+            data=data
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(saved_accounts.count(), 0)
+
         f = SignUpForm(data)
 
         self.assertEqual(f.is_valid(), False)
@@ -101,6 +132,16 @@ class RegistrationTest(TestCase):
             'password2': 'instance1',
         }
 
+        saved_accounts = Account.objects.all()
+        self.assertEqual(saved_accounts.count(), 0)
+
+        response = self.client.post(
+            path=self.path,
+            data=data
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(saved_accounts.count(), 0)
+
         f = SignUpForm(data)
 
         self.assertEqual(f.is_valid(), False)
@@ -117,6 +158,16 @@ class RegistrationTest(TestCase):
             'password1': '',
             'password2': '',
         }
+
+        saved_accounts = Account.objects.all()
+        self.assertEqual(saved_accounts.count(), 0)
+
+        response = self.client.post(
+            path=self.path,
+            data=data
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(saved_accounts.count(), 0)
 
         f = SignUpForm(data)
 
@@ -136,6 +187,16 @@ class RegistrationTest(TestCase):
             'password2': 'instanc',
         }
 
+        saved_accounts = Account.objects.all()
+        self.assertEqual(saved_accounts.count(), 0)
+
+        response = self.client.post(
+            path=self.path,
+            data=data
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(saved_accounts.count(), 0)
+
         f = SignUpForm(data)
 
         self.assertEqual(f.is_valid(), False)
@@ -153,6 +214,16 @@ class RegistrationTest(TestCase):
             'password1': 'toolonginstancepasswo',
             'password2': 'toolonginstancepasswo',
         }
+
+        saved_accounts = Account.objects.all()
+        self.assertEqual(saved_accounts.count(), 0)
+
+        response = self.client.post(
+            path=self.path,
+            data=data
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(saved_accounts.count(), 0)
 
         f = SignUpForm(data)
 
@@ -172,6 +243,16 @@ class RegistrationTest(TestCase):
             'password2': 'instance2',
         }
 
+        saved_accounts = Account.objects.all()
+        self.assertEqual(saved_accounts.count(), 0)
+
+        response = self.client.post(
+            path=self.path,
+            data=data
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(saved_accounts.count(), 0)
+
         f = SignUpForm(data)
 
         self.assertEqual(f.is_valid(), False)
@@ -188,6 +269,16 @@ class RegistrationTest(TestCase):
             'password1': 'aaaa1111',
             'password2': 'aaaa1111',
         }
+
+        saved_accounts = Account.objects.all()
+        self.assertEqual(saved_accounts.count(), 0)
+
+        response = self.client.post(
+            path=self.path,
+            data=data
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(saved_accounts.count(), 0)
 
         f = SignUpForm(data)
 
@@ -206,6 +297,16 @@ class RegistrationTest(TestCase):
             'password2': 'sample11',
         }
 
+        saved_accounts = Account.objects.all()
+        self.assertEqual(saved_accounts.count(), 0)
+
+        response = self.client.post(
+            path=self.path,
+            data=data
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(saved_accounts.count(), 0)
+
         f = SignUpForm(data)
 
         self.assertEqual(f.is_valid(), False)
@@ -222,6 +323,16 @@ class RegistrationTest(TestCase):
             'password1': '19981104',
             'password2': '19981104',
         }
+
+        saved_accounts = Account.objects.all()
+        self.assertEqual(saved_accounts.count(), 0)
+
+        response = self.client.post(
+            path=self.path,
+            data=data
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(saved_accounts.count(), 0)
 
         f = SignUpForm(data)
 
