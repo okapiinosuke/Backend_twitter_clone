@@ -1,0 +1,35 @@
+{% extends 'account/base.html' %}
+
+{% block content %}
+    <div class="text-center">
+        <h2 style="margin-top: 20mm; margin-bottom: 15mm;">
+            <strong>ユーザの登録</strong>
+        </h2>
+    
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <p>
+                    {{ field.label_tag }}<br>
+                    <div class="form-outline mb-4">
+                        {{ field }}
+                    </div>
+                </p>
+            
+                {% if field.help_text %}
+                    <small style="color: grey">{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                    <p style="color: red">{{ error }}</p>
+                {% endfor %}
+                </p>
+            {% endfor %}
+            <div class="form-send">
+                <button type="submit" class="btn btn-primary ripple-surface" style="min-width: 94px;">ユーザ登録</button>
+            </div>
+            <a class="btn btn-link ripple-surface ripple-surface-dark" data-mdb-ripple-color="dark" style="min-width: 74px; margin-top: 10mm;" href="{% url 'account:start' %}" role="button">
+                戻る
+            </a>
+        </form>
+    </div>
+{% endblock %}
