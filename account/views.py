@@ -1,7 +1,9 @@
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from .forms import SignUpForm
+from .forms import SignUpForm, LoginForm
 
 
 def start_view(request):
@@ -34,10 +36,39 @@ def complete_view(request):
 
     return render(request, 'account/complete.html')
 
-
 def login_view(request):
     """
-    ログインをする際に見れるページ（遷移確認のために仮で作成）
+    ログインをする際に見れるページ
+    """
+    form = LoginForm()
+    
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        username = form.cleaned_data.get('username')
+        password = form.cleaned_data.get('password')
+        print(username, password)
+        user = authenticate(username=username, password=password)
+        if user:
+            print('ok')
+            if user.is_active:
+                login(request, user)
+                return render(request, 'account/home.html', {'user': user})
+
+    return render(request, 'account/login.html', {'form': form})
+
+
+@login_required
+def home_view(request):
+    """
+    ログイン後に遷移するページ（遷移確認のために仮で作成）
     """
 
-    return render(request, 'account/login.html')
+    return render(request, 'account/home.html')
+
+
+@login_required
+def logout_view(request):
+    logout(request)
+    form = LoginForm()
+
+    return render(request, 'account/login.html', {'form': form})
