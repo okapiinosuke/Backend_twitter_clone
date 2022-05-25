@@ -40,19 +40,20 @@ def login_view(request):
     """
     ログインをする際に見れるページ
     """
-    form = LoginForm()
     
     if request.method == 'POST':
         form = LoginForm(request.POST)
-        username = form.cleaned_data.get('username')
-        password = form.cleaned_data.get('password')
-        print(username, password)
+        #form.is_valid():
+        username = request.POST['username']
+        password = request.POST['password']
         user = authenticate(username=username, password=password)
         if user:
             print('ok')
             if user.is_active:
                 login(request, user)
                 return render(request, 'account/home.html', {'user': user})
+    form = LoginForm(request.POST)
+    #form.add_error(None, 'LOGIN_ID、またはPASSWORDが違います。')
 
     return render(request, 'account/login.html', {'form': form})
 

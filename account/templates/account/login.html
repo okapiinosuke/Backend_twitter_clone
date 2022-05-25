@@ -8,13 +8,13 @@
 
         <form method="post">
             {% csrf_token %}
+            {{ form.non_field_errors }}
             {% for field in form %}
-                {{ field.label_tag }}<br>
-                {{ field }}<br>
+                <p>{{ field.label_tag }}</p>
+                <p>{{ field }}</p>
+                <p>{{ field.errors }}</p>
             {% endfor %}
-            {% for error in form.errors %}
-                <p style="color: red">{{ error }}</p>
-            {% endfor %}
+
             <div class="form-send">
                 <button type="submit" class="btn btn-primary ripple-surface" style="min-width: 94px;">ログイン</button>
             </div>

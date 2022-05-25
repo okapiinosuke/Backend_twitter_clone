@@ -49,8 +49,17 @@ class LoginForm(AuthenticationForm):
     """
     ログインフォーム
     """
+    username = forms.CharField(
+        required=True,
+        label=_('username'),
+        error_messages={'required': 'ユーザー名を入れて下さい．'},
+        validators=[MinLengthValidator(1),
+            MaxLengthValidator(30)])
+    password = forms.CharField(
+        required=True,
+        label=_("password"),
+        error_messages={'required': 'パスワードを入れて下さい．'},
+        widget=forms.PasswordInput())
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            field.widget.attrs['class'] = 'form-control'
-            field.widget.attrs['placeholder'] = field.label
