@@ -338,3 +338,157 @@ class RegistrationTest(TestCase):
 
         self.assertEqual(f.is_valid(), False)
         self.assertEqual(f.errors['password2'][0], "このパスワードは数字しか使われていません。")
+
+
+class LoginTest(TestCase):
+    """
+    ログイン機能に対するテスト
+    """
+
+    def setUp(self):
+        self.path = reverse('account:register')
+
+    def test_correct_form(self):
+        """
+        登録しているアカウントでログインした場合
+        """
+
+        saved_accounts = Account.objects.all()
+        self.assertEqual(saved_accounts.count(), 0)
+
+        response = self.client.post(
+            path=self.path,
+            data={
+                'email': 'sample@example.com',
+                'username': 'sample',
+                'password1': 'instance1',
+                'password2': 'instance1',
+            }
+        )
+
+        saved_accounts = Account.objects.all()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(saved_accounts.count(), 1)
+
+        filtered_accounts = Account.objects.filter(email="sample@example.com")
+        self.assertEqual(filtered_accounts.count(), 1)
+
+    def test_is_lack_of_username(self):
+        """
+        間違ったパスワードを入力した場合
+        """
+        
+        data = {
+            'email': 'sample@example.com',
+            'username': '',
+            'password1': 'instance1',
+            'password2': 'instance1',
+        }
+
+        saved_accounts = Account.objects.all()
+        self.assertEqual(saved_accounts.count(), 0)
+
+        response = self.client.post(
+            path=self.path,
+            data=data
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(saved_accounts.count(), 0)
+
+
+        f = SignUpForm(data)
+
+        self.assertEqual(f.is_valid(), False)
+        self.assertEqual(f.errors['username'][0], "ユーザー名を入れて下さい．")
+
+    def test_is_lack_of_username(self):
+        """
+        登録していないアカウントの情報を入力した場合
+        """
+        
+        data = {
+            'email': 'sample@example.com',
+            'username': '',
+            'password1': 'instance1',
+            'password2': 'instance1',
+        }
+
+        saved_accounts = Account.objects.all()
+        self.assertEqual(saved_accounts.count(), 0)
+
+        response = self.client.post(
+            path=self.path,
+            data=data
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(saved_accounts.count(), 0)
+
+
+        f = SignUpForm(data)
+
+        self.assertEqual(f.is_valid(), False)
+        self.assertEqual(f.errors['username'][0], "ユーザー名を入れて下さい．")
+# 正しいユーザー名とパスワードを入力してください。どちらのフィールドも大文字と小文字は区別されます。
+
+
+class LogoutTest(TestCase):
+    """
+    ログアウト機能に対するテスト
+    """
+
+    def setUp(self):
+
+        self.path = reverse('account:register')
+
+    def test_correct_form(self):
+        """
+        ログインしているアカウントから正しくの場合
+        """
+
+        saved_accounts = Account.objects.all()
+        self.assertEqual(saved_accounts.count(), 0)
+
+        response = self.client.post(
+            path=self.path,
+            data={
+                'email': 'sample@example.com',
+                'username': 'sample',
+                'password1': 'instance1',
+                'password2': 'instance1',
+            }
+        )
+
+        saved_accounts = Account.objects.all()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(saved_accounts.count(), 1)
+
+        filtered_accounts = Account.objects.filter(email="sample@example.com")
+        self.assertEqual(filtered_accounts.count(), 1)
+
+    def test_is_lack_of_username(self):
+        """
+        ユーザー名を入れ忘れた場合
+        """
+        
+        data = {
+            'email': 'sample@example.com',
+            'username': '',
+            'password1': 'instance1',
+            'password2': 'instance1',
+        }
+
+        saved_accounts = Account.objects.all()
+        self.assertEqual(saved_accounts.count(), 0)
+
+        response = self.client.post(
+            path=self.path,
+            data=data
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(saved_accounts.count(), 0)
+
+
+        f = SignUpForm(data)
+
+        self.assertEqual(f.is_valid(), False)
+        self.assertEqual(f.errors['username'][0], "ユーザー名を入れて下さい．")
