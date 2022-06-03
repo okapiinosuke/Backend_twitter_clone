@@ -36,6 +36,7 @@ def complete_view(request):
 
     return render(request, 'account/complete.html')
 
+
 def login_view(request):
     """
     ログインをする際に見れるページ
@@ -44,18 +45,16 @@ def login_view(request):
     if request.method == 'GET':
         form = LoginForm()
         return render(request, 'account/login.html', {'form': form})
-    if request.method == 'POST':
+    elif request.method == 'POST':
         form = LoginForm(request=request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get['username']
-            password = form.cleaned_data.get['password']
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
             if user:
-                print('ok')
                 if user.is_active:
                     login(request, user)
                     return render(request, 'account/home.html', {'user': user})
-    #form.add_error(None, 'LOGIN_ID、またはPASSWORDが違います。')
 
     return render(request, 'account/login.html', {'form': form})
 
@@ -71,6 +70,10 @@ def home_view(request):
 
 @login_required
 def logout_view(request):
+    """
+    ログアウト後に遷移するページ（ログインページへ戻る）
+    """
+
     logout(request)
     form = LoginForm()
 
