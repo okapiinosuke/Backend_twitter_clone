@@ -346,22 +346,18 @@ class LoginTest(TestCase):
     """
 
     def setUp(self):
-        account = Account.objects.create_user(
+        Account.objects.create_user(
             email='sample@example.com', 
-            username='sample'
+            username='sample',
+            password='instance1'
         )
-        account.set_password('instance1')
-        account.save()
-        self.path = reverse('account:login')
-        self.client = Client()
 
     def test_correct_login(self):
         """
         正しくログインした場合
         """
 
-        saved_accounts = Account.objects.all()
-        self.assertEqual(saved_accounts.count(), 1)
+        self.assertEqual(Account.objects.all().count(), 1)
 
         login = self.client.login(username='sample', password='instance1')
 
@@ -446,13 +442,11 @@ class LogoutTest(TestCase):
     """
 
     def setUp(self):
-        account = Account.objects.create_user(
+        Account.objects.create_user(
             email='sample@example.com', 
-            username='sample'
+            username='sample',
+            password='instance1'
         )
-        account.set_password('instance1')
-        account.save()
-        self.client=Client()
         self.client.login(username='sample', password='instance1')
 
     def test_normal_logout(self):
