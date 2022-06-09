@@ -351,7 +351,10 @@ class LoginTest(TestCase):
             username='sample',
             password='instance1'
         )
+<<<<<<< HEAD
         self.path = reverse('account:login')
+=======
+>>>>>>> 116f5d3b58e0426a951e728d9956b56ffb7a558e
 
     def test_correct_login(self):
         """
@@ -368,7 +371,7 @@ class LoginTest(TestCase):
             path=self.path,
             data={
                 'username': 'sample',
-                'password': 'instance1'
+                'password': 'instance0'
             }
         )
         self.assertEqual(response.status_code, 200)
