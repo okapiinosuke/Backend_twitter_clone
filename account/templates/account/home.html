@@ -1,10 +1,27 @@
 {% extends 'account/base.html' %}
 
 {% block content %}
+
 <div class="container">
-    <h1 class="my-5"></h1>
-    <p>{{ user.username }}さん、こんにちは。</p>
-    <a href="{% url 'account:logout' %}">ログアウト</a>
-</div>
+    <div class="row">
+      <div class="col">
+        <p></p>
+        <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">{{ user.username }}</h5>
+              <p class="card-text">{{ user.profile | linebreaksbr }}</p>
+            </div>
+          </div>
+      </div>
+      <div class="col">
+      </div>
+      <div class="col">
+        <p></p>
+        <a href="{% url 'account:profile' %}">プロフィール編集</a>
+        <p></p>
+        <a href="{% url 'account:logout' %}">ログアウト</a>
+      </div>
+    </div>
+  </div>
 
 {% endblock %}

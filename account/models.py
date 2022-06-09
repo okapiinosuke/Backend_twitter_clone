@@ -18,6 +18,9 @@ class Account(AbstractUser):
         _('password'), 
         max_length=20
     )
+    profile = models.TextField(
+        _('profile')
+    )
 
     def __str__(self):
         return self.username

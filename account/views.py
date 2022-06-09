@@ -3,7 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from .forms import SignUpForm, LoginForm
+from .forms import SignUpForm, LoginForm, ProfileForm
+from .models import Account
 
 
 def start_view(request):
@@ -78,3 +79,20 @@ def logout_view(request):
     form = LoginForm()
 
     return render(request, 'account/login.html', {'form': form})
+
+
+@login_required
+def Profile_view(request):
+    """
+    プロフィールを編集するページ
+    """
+
+    login_user = request.user
+    if request.method == 'GET':
+        form = ProfileForm()
+    elif request.method == 'POST':
+        form = ProfileForm(data=request.POST, instance=login_user)
+        if form.is_valid():
+            form.save()
+
+    return render(request, 'account/profile.html', {'form': form})

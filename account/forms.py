@@ -63,3 +63,16 @@ class LoginForm(AuthenticationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+
+class ProfileForm(forms.ModelForm):
+    """
+    プロフィールフォーム
+    """
+    profile = forms.CharField(label='プロフィール', widget=forms.Textarea)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    class Meta:
+        model = Account
+        fields = {'profile'}

@@ -17,11 +17,10 @@
             {% for field in form %}
                 <p>{{ field.label_tag }}</p>
                 <p>{{ field }}</p>
-                
             {% endfor %}
 
             <div class="form-send">
-                <button type="submit" class="btn btn-primary ripple-surface" style="min-width: 94px;">ログイン</button>
+                <button type="submit" class="btn btn-primary ripple-surface" style="min-width: 94px;" >ログイン</button>
             </div>
             <a class="btn btn-link ripple-surface ripple-surface-dark" data-mdb-ripple-color="dark" style="min-width: 74px; margin-top: 10mm;" href="{% url 'account:start' %}" role="button">
                 戻る

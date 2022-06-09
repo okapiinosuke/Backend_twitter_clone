@@ -1,0 +1,26 @@
+{% extends 'account/base.html' %}
+
+{% block content %}
+    <div class="text-center">
+        <h2 style="margin-top: 20mm; margin-bottom: 15mm;">
+            <strong>プロフィール編集</strong>
+        </h2>
+
+    <p>現在のプロフィール</p>
+    <h5>{{ user.profile | linebreaksbr }}</h5>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <p>{{ field.label_tag }}</p>
+                <p>{{ field }}</p>
+            {% endfor %}
+
+            <div class="form-send">
+                <button type="submit" class="btn btn-primary ripple-surface" style="min-width: 94px;">完了</button>
+            </div>
+            <a class="btn btn-link ripple-surface ripple-surface-dark" data-mdb-ripple-color="dark" style="min-width: 74px; margin-top: 10mm;" href="{% url 'account:home' %}" role="button">
+                戻る
+            </a>
+        </form>
+    </div>
+{% endblock %}

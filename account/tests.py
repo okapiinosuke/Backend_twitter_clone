@@ -346,22 +346,19 @@ class LoginTest(TestCase):
     """
 
     def setUp(self):
-        account = Account.objects.create_user(
+        Account.objects.create_user(
             email='sample@example.com', 
-            username='sample'
+            username='sample',
+            password='instance1'
         )
-        account.set_password('instance1')
-        account.save()
         self.path = reverse('account:login')
-        self.client = Client()
 
     def test_correct_login(self):
         """
         正しくログインした場合
         """
 
-        saved_accounts = Account.objects.all()
-        self.assertEqual(saved_accounts.count(), 1)
+        self.assertEqual(Account.objects.all().count(), 1)
 
         login = self.client.login(username='sample', password='instance1')
 
@@ -382,8 +379,7 @@ class LoginTest(TestCase):
         間違ったパスワードを入力した場合
         """
 
-        saved_accounts = Account.objects.all()
-        self.assertEqual(saved_accounts.count(), 1)
+        self.assertEqual(Account.objects.all().count(), 1)
 
         login = self.client.login(username='sample', password='instance2')
         self.assertFalse(login)
@@ -413,8 +409,7 @@ class LoginTest(TestCase):
         登録していないアカウントの情報を入力した場合
         """
         
-        saved_accounts = Account.objects.all()
-        self.assertEqual(saved_accounts.count(), 1)
+        self.assertEqual(Account.objects.all().count(), 1)
 
         login = self.client.login(username='example', password='instance10')
         self.assertFalse(login)
@@ -446,13 +441,11 @@ class LogoutTest(TestCase):
     """
 
     def setUp(self):
-        account = Account.objects.create_user(
+        Account.objects.create_user(
             email='sample@example.com', 
-            username='sample'
+            username='sample',
+            password='instance1'
         )
-        account.set_password('instance1')
-        account.save()
-        self.client=Client()
         self.client.login(username='sample', password='instance1')
 
     def test_normal_logout(self):
@@ -462,3 +455,53 @@ class LogoutTest(TestCase):
         response = self.client.get(path=reverse('account:logout'))
         self.assertEqual(response.status_code, 200)
         self.assertFalse('username' in response.context)
+
+
+class EditProfileTest(TestCase):
+    """
+    プロフィール編集機能に対するテスト
+    """
+
+    def setUp(self):
+        Account.objects.create_user(
+            email='sample1@example.com', 
+            username='sample1',
+            password='instance1'
+        )
+        Account.objects.create_user(
+            email='sample2@example.com', 
+            username='sample2',
+            password='instance2'
+        )
+        self.path = reverse('account:profile')
+
+    def test_correct_editing_profile(self):
+        """
+        正しくプロフィールを編集した場合
+        """
+
+        self.assertEqual(Account.objects.filter(profile="").count(), 2)
+
+        self.client.login(username='sample1', password='instance1')
+        response = self.client.post(
+            path=self.path,
+            data={
+                'profile': 'sample1です。'
+            }
+        )
+        self.assertEqual(Account.objects.filter(profile="sample1です。").count(), 1)
+        self.assertEqual(Account.objects.filter(profile="sample1です。").first().username, "sample1")
+
+        self.client.logout()
+        self.client.login(username='sample2', password='instance2')
+        response = self.client.post(
+            path=self.path,
+            data={
+                'profile': 'sample2です。'
+            }
+        )
+
+        self.assertEqual(Account.objects.filter(profile="sample1です。").count(), 1)
+        self.assertEqual(Account.objects.filter(profile="sample1です。").first().username, "sample1")
+        self.assertEqual(Account.objects.filter(profile="sample2です。").count(), 1)
+        self.assertEqual(Account.objects.filter(profile="sample2です。").first().username, "sample2")
