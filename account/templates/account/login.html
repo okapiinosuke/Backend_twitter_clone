@@ -8,6 +8,9 @@
 
         <form method="post">
             {% csrf_token %}
+            {%if request_method_error%}
+                <p style="color: red">{{ request_method_error }}</p>
+            {% endif %}
             {%for error in form.non_field_errors%}
                 <p style="color: red">{{ error }}</p>
             {% endfor %}

@@ -4,7 +4,6 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from .forms import SignUpForm, LoginForm, ProfileForm
-from .models import Account
 
 
 def start_view(request):
@@ -56,8 +55,9 @@ def login_view(request):
                 if user.is_active:
                     login(request, user)
                     return render(request, 'account/home.html', {'user': user})
-
-    return render(request, 'account/login.html', {'form': form})
+    else:
+        request_method_error = "GETメソッドとPOSTメソッド以外受け付けていません。"
+        return render(request, 'account/login.html', {'form': form, 'request_method_error': request_method_error})
 
 
 @login_required
@@ -82,7 +82,7 @@ def logout_view(request):
 
 
 @login_required
-def Profile_view(request):
+def profile_view(request):
     """
     プロフィールを編集するページ
     """
@@ -90,9 +90,12 @@ def Profile_view(request):
     login_user = request.user
     if request.method == 'GET':
         form = ProfileForm()
+        return render(request, 'account/profile.html', {'form': form})
     elif request.method == 'POST':
         form = ProfileForm(data=request.POST, instance=login_user)
         if form.is_valid():
             form.save()
-
-    return render(request, 'account/profile.html', {'form': form})
+        return render(request, 'account/profile.html', {'form': form})
+    else:
+        request_method_error = "GETメソッドとPOSTメソッド以外受け付けていません。"
+        return render(request, 'account/profile.html', {'form': form, 'request_method_error': request_method_error})
