@@ -1,3 +1,4 @@
+from django.http import HttpResponseNotAllowed
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -434,6 +435,15 @@ class LoginTest(TestCase):
             '正しいユーザー名とパスワードを入力してください。どちらのフィールドも大文字と小文字は区別されます。'
         )
 
+    def test_other_requests(self):  
+        """
+        GET及びPOSTメソッド以外のリクエストを送信した場合
+        """
+
+        response = self.client.put(path=self.path)
+        self.assertEqual(response.status_code, 405)
+        self.assertIsInstance(response, HttpResponseNotAllowed)
+
 
 class LogoutTest(TestCase):
     """
@@ -489,6 +499,7 @@ class EditProfileTest(TestCase):
                 'profile': 'sample1です。'
             }
         )
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(Account.objects.filter(profile="sample1です。").count(), 1)
         self.assertEqual(Account.objects.filter(profile="sample1です。").first().username, "sample1")
 
@@ -500,8 +511,18 @@ class EditProfileTest(TestCase):
                 'profile': 'sample2です。'
             }
         )
-
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(Account.objects.filter(profile="sample1です。").count(), 1)
         self.assertEqual(Account.objects.filter(profile="sample1です。").first().username, "sample1")
         self.assertEqual(Account.objects.filter(profile="sample2です。").count(), 1)
         self.assertEqual(Account.objects.filter(profile="sample2です。").first().username, "sample2")
+
+    def test_other_requests(self):  
+        """
+        GET及びPOSTメソッド以外のリクエストを送信した場合
+        """
+
+        self.client.login(username='sample1', password='instance1')
+        response = self.client.put(path=self.path)
+        self.assertEqual(response.status_code, 405)
+        self.assertIsInstance(response, HttpResponseNotAllowed)

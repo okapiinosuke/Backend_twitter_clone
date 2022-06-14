@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseNotAllowed
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
@@ -55,9 +56,8 @@ def login_view(request):
                 if user.is_active:
                     login(request, user)
                     return render(request, 'account/home.html', {'user': user})
-    else:
-        request_method_error = "GETメソッドとPOSTメソッド以外受け付けていません。"
-        return render(request, 'account/login.html', {'form': form, 'request_method_error': request_method_error})
+        return render(request, 'account/login.html', {'form': form})
+    return HttpResponseNotAllowed(['GET', 'POST'])
 
 
 @login_required
@@ -96,6 +96,4 @@ def profile_view(request):
         if form.is_valid():
             form.save()
         return render(request, 'account/profile.html', {'form': form})
-    else:
-        request_method_error = "GETメソッドとPOSTメソッド以外受け付けていません。"
-        return render(request, 'account/profile.html', {'form': form, 'request_method_error': request_method_error})
+    return HttpResponseNotAllowed(['GET', 'POST'])
