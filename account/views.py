@@ -3,9 +3,10 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotAllowed
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from urllib.parse import urlencode
 
 from .forms import SignUpForm, LoginForm, ProfileForm
-
+from .models import Profile
 
 def start_view(request):
     """
@@ -55,7 +56,10 @@ def login_view(request):
             if user:
                 if user.is_active:
                     login(request, user)
-                    return render(request, 'account/home.html', {'user': user})
+                    redirect_url = reverse('account:home')
+                    parameters = urlencode({'user': user})
+                    url = f'{redirect_url}?{parameters}'
+                    return redirect(url)
         return render(request, 'account/login.html', {'form': form})
     return HttpResponseNotAllowed(['GET', 'POST'])
 
@@ -65,8 +69,12 @@ def home_view(request):
     """
     ログイン後に遷移するページ（遷移確認のために仮で作成）
     """
+    if Profile.objects.filter(user=request.user):
+        user_profile = Profile.objects.get(user=request.user)
+    else:
+        user_profile = ""
 
-    return render(request, 'account/home.html')
+    return render(request, 'account/home.html', {'profile': user_profile})
 
 
 @login_required
@@ -77,23 +85,39 @@ def logout_view(request):
 
     logout(request)
     form = LoginForm()
+    redirect_url = reverse('account:login')
+    parameters = urlencode({'form': form})
+    url = f'{redirect_url}?{parameters}'
 
-    return render(request, 'account/login.html', {'form': form})
+    return redirect(url)
 
 
 @login_required
-def profile_view(request):
+def edit_profile_view(request):
     """
     プロフィールを編集するページ
     """
 
-    login_user = request.user
     if request.method == 'GET':
         form = ProfileForm()
-        return render(request, 'account/profile.html', {'form': form})
+        if Profile.objects.filter(user=request.user):
+            user_profile = Profile.objects.get(user=request.user)
+        else:
+            user_profile = ""
+        return render(request, 'account/edit_profile.html', {'form': form, 'profile': user_profile})
     elif request.method == 'POST':
-        form = ProfileForm(data=request.POST, instance=login_user)
+        form = ProfileForm(data=request.POST)
         if form.is_valid():
-            form.save()
-        return render(request, 'account/profile.html', {'form': form})
+            profile = form.save(request.user)  # form.save(commit=False)
+            if hasattr(request.user, 'profile'):
+                request.user.profile.profile = profile.profile
+                profile = request.user.profile
+            else:
+                profile.user = request.user
+            profile.save()
+        if Profile.objects.filter(user=request.user):
+            user_profile = Profile.objects.get(user=request.user)
+        else:
+            user_profile = ""
+        return render(request, 'account/edit_profile.html', {'form': form , 'profile': user_profile})
     return HttpResponseNotAllowed(['GET', 'POST'])

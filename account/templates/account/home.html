@@ -9,7 +9,7 @@
         <div class="card">
             <div class="card-body">
               <h5 class="card-title">{{ user.username }}</h5>
-              <p class="card-text">{{ user.profile | linebreaksbr }}</p>
+              <p class="card-text">{{ profile | linebreaksbr }}</p>
             </div>
           </div>
       </div>
@@ -17,7 +17,7 @@
       </div>
       <div class="col">
         <p></p>
-        <a href="{% url 'account:profile' %}">プロフィール編集</a>
+        <a href="{% url 'account:edit_profile' %}">プロフィール編集</a>
         <p></p>
         <a href="{% url 'account:logout' %}">ログアウト</a>
       </div>

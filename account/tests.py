@@ -1,8 +1,10 @@
+import re
+
 from django.http import HttpResponseNotAllowed
-from django.test import Client, TestCase
+from django.test import TestCase
 from django.urls import reverse
 
-from .models import Account
+from .models import Account, Profile
 from .forms import SignUpForm, LoginForm
 
 
@@ -372,8 +374,8 @@ class LoginTest(TestCase):
                 'password': 'instance1'
             }
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.context['user'], 'sample')
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(re.findall('user=(.*)', response['location'])[0], 'sample')
 
     def test_incorrect_password(self):
         """
@@ -463,7 +465,7 @@ class LogoutTest(TestCase):
         ログインしているアカウントから正しくログアウトした場合
         """
         response = self.client.get(path=reverse('account:logout'))
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
         self.assertFalse('username' in response.context)
 
 
@@ -483,16 +485,17 @@ class EditProfileTest(TestCase):
             username='sample2',
             password='instance2'
         )
-        self.path = reverse('account:profile')
+        self.path = reverse('account:edit_profile')
 
     def test_correct_editing_profile(self):
         """
         正しくプロフィールを編集した場合
         """
 
-        self.assertEqual(Account.objects.filter(profile="").count(), 2)
+        # self.assertEqual(Profile.objects.filter(profile="").count(), 2)
 
         self.client.login(username='sample1', password='instance1')
+        self.assertEqual(hasattr(self.client, 'profile'), False)
         response = self.client.post(
             path=self.path,
             data={
@@ -500,22 +503,7 @@ class EditProfileTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(Account.objects.filter(profile="sample1です。").count(), 1)
-        self.assertEqual(Account.objects.filter(profile="sample1です。").first().username, "sample1")
-
-        self.client.logout()
-        self.client.login(username='sample2', password='instance2')
-        response = self.client.post(
-            path=self.path,
-            data={
-                'profile': 'sample2です。'
-            }
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(Account.objects.filter(profile="sample1です。").count(), 1)
-        self.assertEqual(Account.objects.filter(profile="sample1です。").first().username, "sample1")
-        self.assertEqual(Account.objects.filter(profile="sample2です。").count(), 1)
-        self.assertEqual(Account.objects.filter(profile="sample2です。").first().username, "sample2")
+        self.assertEqual(response.context['user'], Profile.objects.get(profile="sample1です。").user)
 
     def test_other_requests(self):  
         """

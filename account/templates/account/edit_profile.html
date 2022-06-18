@@ -7,10 +7,10 @@
         </h2>
 
     <p>現在のプロフィール</p>
-    <h5>{{ user.profile | linebreaksbr }}</h5>
+    <h5>{{ profile | linebreaksbr }}</h5>
         <form method="post">
             {% csrf_token %}
-            {%if request_method_error%}
+            {% if request_method_error %}
                 <p style="color: red">{{ request_method_error }}</p>
             {% endif %}
             {% for field in form %}

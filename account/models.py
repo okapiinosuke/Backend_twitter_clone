@@ -18,9 +18,26 @@ class Account(AbstractUser):
         _('password'), 
         max_length=20
     )
-    profile = models.TextField(
-        _('profile')
-    )
 
     def __str__(self):
         return self.username
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(
+        Account, 
+        on_delete=models.CASCADE,
+        null = True, 
+        blank = True,
+        related_name = 'profile'
+    )
+
+    profile = models.TextField(
+        _('profile'),
+        null = True, 
+        blank = True,
+        default = None
+    ) 
+
+    def __str__(self):
+        return self.profile

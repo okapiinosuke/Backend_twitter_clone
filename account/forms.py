@@ -4,7 +4,7 @@ from django.core.validators import (EmailValidator, MaxLengthValidator,
                                     MinLengthValidator)
 from django.utils.translation import gettext_lazy as _
 
-from .models import Account
+from .models import Account, Profile
 
 
 class SignUpForm(UserCreationForm):
@@ -73,7 +73,7 @@ class ProfileForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
     class Meta:
-        model = Account
+        model = Profile
         fields = {'profile'}
         widgets = {
             'profile': forms.Textarea
