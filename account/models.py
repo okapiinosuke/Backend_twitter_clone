@@ -36,7 +36,7 @@ class Profile(models.Model):
         _('profile'),
         null = True, 
         blank = True,
-        default = None
+        default = ""
     ) 
 
     def __str__(self):
