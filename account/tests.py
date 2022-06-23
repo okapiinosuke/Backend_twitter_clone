@@ -480,11 +480,10 @@ class EditProfileTest(TestCase):
             username='sample1',
             password='instance1'
         )
-        Account.objects.create_user(
-            email='sample2@example.com', 
-            username='sample2',
-            password='instance2'
+        Profile.objects.create(
+            user=Account.objects.get(username='sample1')
         )
+        self.client.login(username='sample1', password='instance1')
         self.path = reverse('account:edit_profile')
 
     def test_correct_editing_profile(self):
@@ -492,10 +491,7 @@ class EditProfileTest(TestCase):
         正しくプロフィールを編集した場合
         """
 
-        # self.assertEqual(Profile.objects.filter(profile="").count(), 2)
-
-        self.client.login(username='sample1', password='instance1')
-        self.assertEqual(hasattr(self.client, 'profile'), False)
+        self.assertEqual(Profile.objects.all().count(), 1)
         response = self.client.post(
             path=self.path,
             data={
@@ -510,7 +506,6 @@ class EditProfileTest(TestCase):
         GET及びPOSTメソッド以外のリクエストを送信した場合
         """
 
-        self.client.login(username='sample1', password='instance1')
         response = self.client.put(path=self.path)
         self.assertEqual(response.status_code, 405)
         self.assertIsInstance(response, HttpResponseNotAllowed)

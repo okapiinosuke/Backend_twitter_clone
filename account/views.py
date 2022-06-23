@@ -6,7 +6,7 @@ from django.urls import reverse
 from urllib.parse import urlencode
 
 from .forms import SignUpForm, LoginForm, ProfileForm
-from .models import Profile
+from .models import Account, Profile
 
 def start_view(request):
     """
@@ -26,6 +26,8 @@ def register_view(request):
         form = SignUpForm(request.POST)
         if form.is_valid():
             form.save()
+            profile = Profile(user=Account.objects.get(username=form.cleaned_data['username']))
+            profile.save()
             return redirect(reverse('account:complete'))
 
     return render(request, 'account/register.html', {'form': form})
@@ -69,10 +71,7 @@ def home_view(request):
     """
     ログイン後に遷移するページ（遷移確認のために仮で作成）
     """
-    if Profile.objects.filter(user=request.user):
-        user_profile = Profile.objects.get(user=request.user)
-    else:
-        user_profile = ""
+    user_profile = Profile.objects.get(user=request.user)
 
     return render(request, 'account/home.html', {'profile': user_profile})
 
@@ -100,24 +99,12 @@ def edit_profile_view(request):
 
     if request.method == 'GET':
         form = ProfileForm()
-        if Profile.objects.filter(user=request.user):
-            user_profile = Profile.objects.get(user=request.user)
-        else:
-            user_profile = ""
+        user_profile = Profile.objects.get(user=request.user)
         return render(request, 'account/edit_profile.html', {'form': form, 'profile': user_profile})
     elif request.method == 'POST':
-        form = ProfileForm(data=request.POST)
+        user_profile = Profile.objects.get(user=request.user)
+        form = ProfileForm(data=request.POST, instance=user_profile)
         if form.is_valid():
-            profile = form.save(request.user)  # form.save(commit=False)
-            if hasattr(request.user, 'profile'):
-                request.user.profile.profile = profile.profile
-                profile = request.user.profile
-            else:
-                profile.user = request.user
-            profile.save()
-        if Profile.objects.filter(user=request.user):
-            user_profile = Profile.objects.get(user=request.user)
-        else:
-            user_profile = ""
+            form.save()
         return render(request, 'account/edit_profile.html', {'form': form , 'profile': user_profile})
     return HttpResponseNotAllowed(['GET', 'POST'])

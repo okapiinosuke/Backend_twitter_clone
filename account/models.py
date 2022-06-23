@@ -27,15 +27,11 @@ class Profile(models.Model):
     user = models.OneToOneField(
         Account, 
         on_delete=models.CASCADE,
-        null = True, 
-        blank = True,
         related_name = 'profile'
     )
 
     profile = models.TextField(
         _('profile'),
-        null = True, 
-        blank = True,
         default = ""
     ) 
 
