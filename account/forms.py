@@ -1,10 +1,10 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.validators import (EmailValidator, MaxLengthValidator,
                                     MinLengthValidator)
 from django.utils.translation import gettext_lazy as _
 
-from .models import Account
+from .models import Account, Profile
 
 
 class SignUpForm(UserCreationForm):
@@ -43,3 +43,41 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = Account
         fields = ('email', 'username', 'password1', 'password2')
+
+
+class LoginForm(AuthenticationForm):
+    """
+    ログインフォーム
+    """
+    username = forms.CharField(
+        required=True,
+        label=_('username'),
+        error_messages={'required': 'ユーザー名を入れて下さい．'},
+        validators=[MinLengthValidator(1),
+            MaxLengthValidator(30)])
+    password = forms.CharField(
+        required=True,
+        label=_("password"),
+        error_messages={'required': 'パスワードを入れて下さい．'},
+        widget=forms.PasswordInput())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class ProfileForm(forms.ModelForm):
+    """
+    プロフィールフォーム
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    class Meta:
+        model = Profile
+        fields = {'profile'}
+        widgets = {
+            'profile': forms.Textarea
+        }
+        labels = {
+            'profile': 'プロフィール'
+        }

@@ -21,3 +21,19 @@ class Account(AbstractUser):
 
     def __str__(self):
         return self.username
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(
+        Account, 
+        on_delete=models.CASCADE,
+        related_name = 'profile'
+    )
+
+    profile = models.TextField(
+        _('profile'),
+        default = ""
+    ) 
+
+    def __str__(self):
+        return self.profile

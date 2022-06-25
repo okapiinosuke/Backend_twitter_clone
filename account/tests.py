@@ -1,8 +1,11 @@
-from django.test import Client, TestCase
+import re
+
+from django.http import HttpResponseNotAllowed
+from django.test import TestCase
 from django.urls import reverse
 
-from .models import Account
-from .forms import SignUpForm
+from .models import Account, Profile
+from .forms import SignUpForm, LoginForm
 
 
 class RegistrationTest(TestCase):
@@ -338,3 +341,171 @@ class RegistrationTest(TestCase):
 
         self.assertEqual(f.is_valid(), False)
         self.assertEqual(f.errors['password2'][0], "このパスワードは数字しか使われていません。")
+
+
+class LoginTest(TestCase):
+    """
+    ログイン機能に対するテスト
+    """
+
+    def setUp(self):
+        Account.objects.create_user(
+            email='sample@example.com', 
+            username='sample',
+            password='instance1'
+        )
+        self.path = reverse('account:login')
+
+    def test_correct_login(self):
+        """
+        正しくログインした場合
+        """
+
+        self.assertEqual(Account.objects.all().count(), 1)
+
+        login = self.client.login(username='sample', password='instance1')
+
+        self.assertTrue(login)
+
+        response = self.client.post(
+            path=self.path,
+            data={
+                'username': 'sample',
+                'password': 'instance1'
+            }
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(re.findall('user=(.*)', response['location'])[0], 'sample')
+
+    def test_incorrect_password(self):
+        """
+        間違ったパスワードを入力した場合
+        """
+
+        self.assertEqual(Account.objects.all().count(), 1)
+
+        login = self.client.login(username='sample', password='instance2')
+        self.assertFalse(login)
+
+        response = self.client.post(
+            path=self.path,
+            data={
+                'username': 'sample',
+                'password': 'instance2'
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+
+        form = LoginForm(
+            data={
+                'username': 'sample',
+                'password': 'instance2'
+            }
+        )
+        self.assertEqual(
+            form.errors['__all__'][0], 
+            '正しいユーザー名とパスワードを入力してください。どちらのフィールドも大文字と小文字は区別されます。'
+        )
+
+    def test_not_registered_account(self):  
+        """
+        登録していないアカウントの情報を入力した場合
+        """
+        
+        self.assertEqual(Account.objects.all().count(), 1)
+
+        login = self.client.login(username='example', password='instance10')
+        self.assertFalse(login)
+
+        response = self.client.post(
+            path=self.path,
+            data={
+                'username': 'example',
+                'password': 'instance10'
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+
+        form = LoginForm(
+            data={
+                'username': 'example',
+                'password': 'instance10'
+            }
+        )
+        self.assertEqual(
+            form.errors['__all__'][0], 
+            '正しいユーザー名とパスワードを入力してください。どちらのフィールドも大文字と小文字は区別されます。'
+        )
+
+    def test_other_requests(self):  
+        """
+        GET及びPOSTメソッド以外のリクエストを送信した場合
+        """
+
+        response = self.client.put(path=self.path)
+        self.assertEqual(response.status_code, 405)
+        self.assertIsInstance(response, HttpResponseNotAllowed)
+
+
+class LogoutTest(TestCase):
+    """
+    ログアウト機能に対するテスト
+    """
+
+    def setUp(self):
+        Account.objects.create_user(
+            email='sample@example.com', 
+            username='sample',
+            password='instance1'
+        )
+        self.client.login(username='sample', password='instance1')
+
+    def test_normal_logout(self):
+        """
+        ログインしているアカウントから正しくログアウトした場合
+        """
+        response = self.client.get(path=reverse('account:logout'))
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse('username' in response.context)
+
+
+class EditProfileTest(TestCase):
+    """
+    プロフィール編集機能に対するテスト
+    """
+
+    def setUp(self):
+        Account.objects.create_user(
+            email='sample1@example.com', 
+            username='sample1',
+            password='instance1'
+        )
+        Profile.objects.create(
+            user=Account.objects.get(username='sample1')
+        )
+        self.client.login(username='sample1', password='instance1')
+        self.path = reverse('account:edit_profile')
+
+    def test_correct_editing_profile(self):
+        """
+        正しくプロフィールを編集した場合
+        """
+
+        self.assertEqual(Profile.objects.all().count(), 1)
+        response = self.client.post(
+            path=self.path,
+            data={
+                'profile': 'sample1です。'
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['user'], Profile.objects.get(profile="sample1です。").user)
+
+    def test_other_requests(self):  
+        """
+        GET及びPOSTメソッド以外のリクエストを送信した場合
+        """
+
+        response = self.client.put(path=self.path)
+        self.assertEqual(response.status_code, 405)
+        self.assertIsInstance(response, HttpResponseNotAllowed)
