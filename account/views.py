@@ -1,12 +1,14 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseNotAllowed
-from django.shortcuts import redirect, render
+from django.core.exceptions import PermissionDenied
+from django.http import Http404, HttpResponseNotAllowed
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from urllib.parse import urlencode
 
-from .forms import SignUpForm, LoginForm, ProfileForm
-from .models import Account, Profile
+from .forms import SignUpForm, LoginForm, ProfileForm, TweetForm
+from .models import Account, Profile, Tweet
 
 def start_view(request):
     """
@@ -20,6 +22,7 @@ def register_view(request):
     """
     ユーザ登録をする際にアクセスするページ
     """
+    
     form = SignUpForm()
 
     if request.method == 'POST':
@@ -58,8 +61,9 @@ def login_view(request):
             if user:
                 if user.is_active:
                     login(request, user)
+                    tweet_form = TweetForm()
                     redirect_url = reverse('account:home')
-                    parameters = urlencode({'user': user})
+                    parameters = urlencode({'user': user, 'tweet_form': tweet_form})
                     url = f'{redirect_url}?{parameters}'
                     return redirect(url)
         return render(request, 'account/login.html', {'form': form})
@@ -71,9 +75,29 @@ def home_view(request):
     """
     ログイン後に遷移するページ（遷移確認のために仮で作成）
     """
-    user_profile = Profile.objects.get(user=request.user)
-
-    return render(request, 'account/home.html', {'profile': user_profile})
+    
+    if request.method == 'GET':
+        user_profile = Profile.objects.get(user=request.user)
+        form = TweetForm()
+        tweet_list = Tweet.objects.none()
+        for tweet_each_user in Account.objects.prefetch_related('tweet'):        
+            tweet_list = tweet_list | tweet_each_user.tweet.all()
+        tweet_list = tweet_list.filter(created_at__gte=timezone.now()).order_by('-id')
+        return render(request, 'account/home.html', {'profile': user_profile, 'form': form, 'tweet_list': tweet_list})
+    elif request.method == 'POST':
+        user_profile = Profile.objects.get(user=request.user)
+        form = TweetForm(data=request.POST)
+        if form.is_valid():
+            tweet = form.save(commit=False)
+            tweet.user = request.user
+            tweet.save()
+            form = TweetForm()
+        tweet_list = Tweet.objects.none()
+        for tweet_each_user in Account.objects.prefetch_related('tweet'): 
+            tweet_list = tweet_list | tweet_each_user.tweet.all()
+        tweet_list = tweet_list.filter(created_at__gte=timezone.now()).order_by('-id')
+        return render(request, 'account/home.html', {'profile': user_profile, 'form': form, 'tweet_list': tweet_list})
+    return HttpResponseNotAllowed(['GET', 'POST'])
 
 
 @login_required
@@ -108,3 +132,41 @@ def edit_profile_view(request):
             form.save()
         return render(request, 'account/edit_profile.html', {'form': form , 'profile': user_profile})
     return HttpResponseNotAllowed(['GET', 'POST'])
+
+
+@login_required
+def tweet_detail_view(request, tweet_id):
+    """
+    ツイートの詳細を編集するページ
+    """
+
+    if request.method == 'GET':
+        tweet = get_object_or_404(Tweet, pk=tweet_id)
+        if tweet.created_at > timezone.now():
+            raise Http404
+        return render(request, 'account/tweet_detail.html', {'tweet': tweet})
+    return HttpResponseNotAllowed(['GET'])
+
+
+@login_required
+def delete_tweet_view(request, tweet_id):
+    """
+    ツイートを削除するページ
+    """
+
+    if request.method == 'GET':
+        tweet = get_object_or_404(Tweet, pk=tweet_id)
+        if tweet.created_at > timezone.now():
+            raise Http404
+        if tweet.user == request.user:
+            tweet.delete()
+            user_profile = Profile.objects.get(user=request.user)
+            form = TweetForm()
+            tweet_list = Tweet.objects.none()
+            for tweet_each_user in Account.objects.prefetch_related('tweet'):        
+                tweet_list = tweet_list | tweet_each_user.tweet.all()
+            tweet_list = tweet_list.filter(created_at__gte=timezone.now()).order_by('-id')
+            return render(request, 'account/home.html', {'profile': user_profile, 'form': form, 'tweet_list': tweet_list})
+        else:
+            raise PermissionDenied
+    return HttpResponseNotAllowed(['GET'])

@@ -4,7 +4,7 @@ from django.core.validators import (EmailValidator, MaxLengthValidator,
                                     MinLengthValidator)
 from django.utils.translation import gettext_lazy as _
 
-from .models import Account, Profile
+from .models import Account, Profile, Tweet
 
 
 class SignUpForm(UserCreationForm):
@@ -80,4 +80,29 @@ class ProfileForm(forms.ModelForm):
         }
         labels = {
             'profile': 'プロフィール'
+        }
+        
+
+class TweetForm(forms.ModelForm):
+    """
+    ツイートフォーム
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    class Meta:
+        model = Tweet
+        fields = {'content'}
+        widgets = {
+            'content': forms.Textarea,
+            'description': forms.Textarea(attrs={'rows': 6, 'cols': 15})
+        }
+        labels = {
+            'content': '内容'
+        }
+        error_messages = {
+            'content': {
+                'required': '入力が必須です．',
+                'max_length': '文字数は，255文字以下です．'
+            }
         }
