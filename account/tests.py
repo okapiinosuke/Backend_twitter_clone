@@ -601,29 +601,6 @@ class TweetTest(TestCase):
         )
         self.assertEqual(f.is_valid(), False)
         self.assertEqual(f.errors['content'][0], "文字数は，255文字以下です．")
-        
-    def test_is_invisible_future_tweet(self):
-        """
-        未来のツイートが表示されないか
-        """
-        
-        self.assertEqual(Tweet.objects.all().count(), 0)
-        response = self.client.post(
-            path=self.path,
-            data={
-                'content': 'Hello, world.'
-            }
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(Tweet.objects.all().count(), 1)
-        
-        tweet_future = Tweet.objects.filter(content='Hello, world.')[0]
-        tweet_future.created_at += datetime.timedelta(days=1)
-        
-        response = self.client.get(
-            path=self.path,
-        )
-        self.assertEqual(response.context['tweet_list'].count(), 0)
        
     def test_confirm_tweet(self):
         """

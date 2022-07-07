@@ -82,7 +82,7 @@ def home_view(request):
         tweet_list = Tweet.objects.none()
         for tweet_each_user in Account.objects.prefetch_related('tweet'):        
             tweet_list = tweet_list | tweet_each_user.tweet.all()
-        tweet_list = tweet_list.filter(created_at__gte=timezone.now()).order_by('-id')
+        tweet_list = tweet_list.filter(created_at__lte=timezone.now()).order_by('-id')
         return render(request, 'account/home.html', {'profile': user_profile, 'form': form, 'tweet_list': tweet_list})
     elif request.method == 'POST':
         user_profile = Profile.objects.get(user=request.user)
@@ -95,7 +95,7 @@ def home_view(request):
         tweet_list = Tweet.objects.none()
         for tweet_each_user in Account.objects.prefetch_related('tweet'): 
             tweet_list = tweet_list | tweet_each_user.tweet.all()
-        tweet_list = tweet_list.filter(created_at__gte=timezone.now()).order_by('-id')
+        tweet_list = tweet_list.filter(created_at__lte=timezone.now()).order_by('-id')
         return render(request, 'account/home.html', {'profile': user_profile, 'form': form, 'tweet_list': tweet_list})
     return HttpResponseNotAllowed(['GET', 'POST'])
 
@@ -165,7 +165,7 @@ def delete_tweet_view(request, tweet_id):
             tweet_list = Tweet.objects.none()
             for tweet_each_user in Account.objects.prefetch_related('tweet'):        
                 tweet_list = tweet_list | tweet_each_user.tweet.all()
-            tweet_list = tweet_list.filter(created_at__gte=timezone.now()).order_by('-id')
+            tweet_list = tweet_list.filter(created_at__lte=timezone.now()).order_by('-id')
             return render(request, 'account/home.html', {'profile': user_profile, 'form': form, 'tweet_list': tweet_list})
         else:
             raise PermissionDenied

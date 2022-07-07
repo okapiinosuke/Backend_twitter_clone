@@ -1,6 +1,5 @@
 from django.contrib.auth.models import AbstractUser, UnicodeUsernameValidator
 from django.db import models
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 
@@ -51,8 +50,8 @@ class Tweet(models.Model):
         max_length=255
     )
     created_at = models.DateTimeField(
-        verbose_name="投稿日時", 
-        default=timezone.now
+        verbose_name="投稿日時",
+        auto_now_add=True
     )
     
     def __str__(self):
