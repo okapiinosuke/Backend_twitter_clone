@@ -10,30 +10,33 @@ from urllib.parse import urlencode
 from .forms import SignUpForm, LoginForm, ProfileForm, TweetForm
 from .models import Account, Profile, Tweet
 
+
 def start_view(request):
     """
     最初にアクセスした際に見れるページ
     """
 
-    return render(request, 'account/start.html')
+    return render(request, "account/start.html")
 
 
 def register_view(request):
     """
     ユーザ登録をする際にアクセスするページ
     """
-    
+
     form = SignUpForm()
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = SignUpForm(request.POST)
         if form.is_valid():
             form.save()
-            profile = Profile(user=Account.objects.get(username=form.cleaned_data['username']))
+            profile = Profile(
+                user=Account.objects.get(username=form.cleaned_data["username"])
+            )
             profile.save()
-            return redirect(reverse('account:complete'))
+            return redirect(reverse("account:complete"))
 
-    return render(request, 'account/register.html', {'form': form})
+    return render(request, "account/register.html", {"form": form})
 
 
 def complete_view(request):
@@ -41,33 +44,33 @@ def complete_view(request):
     ユーザ登録が完了した際に見れるページ
     """
 
-    return render(request, 'account/complete.html')
+    return render(request, "account/complete.html")
 
 
 def login_view(request):
     """
     ログインをする際に見れるページ
     """
-    
-    if request.method == 'GET':
+
+    if request.method == "GET":
         form = LoginForm()
-        return render(request, 'account/login.html', {'form': form})
-    elif request.method == 'POST':
+        return render(request, "account/login.html", {"form": form})
+    elif request.method == "POST":
         form = LoginForm(request=request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
+            username = form.cleaned_data.get("username")
+            password = form.cleaned_data.get("password")
             user = authenticate(username=username, password=password)
             if user:
                 if user.is_active:
                     login(request, user)
                     tweet_form = TweetForm()
-                    redirect_url = reverse('account:home')
-                    parameters = urlencode({'user': user, 'tweet_form': tweet_form})
-                    url = f'{redirect_url}?{parameters}'
+                    redirect_url = reverse("account:home")
+                    parameters = urlencode({"user": user, "tweet_form": tweet_form})
+                    url = f"{redirect_url}?{parameters}"
                     return redirect(url)
-        return render(request, 'account/login.html', {'form': form})
-    return HttpResponseNotAllowed(['GET', 'POST'])
+        return render(request, "account/login.html", {"form": form})
+    return HttpResponseNotAllowed(["GET", "POST"])
 
 
 @login_required
@@ -75,16 +78,20 @@ def home_view(request):
     """
     ログイン後に遷移するページ（遷移確認のために仮で作成）
     """
-    
-    if request.method == 'GET':
+
+    if request.method == "GET":
         user_profile = Profile.objects.get(user=request.user)
         form = TweetForm()
         tweet_list = Tweet.objects.none()
-        for tweet_each_user in Account.objects.prefetch_related('tweet'):        
+        for tweet_each_user in Account.objects.prefetch_related("tweet"):
             tweet_list = tweet_list | tweet_each_user.tweet.all()
-        tweet_list = tweet_list.filter(created_at__lte=timezone.now()).order_by('-id')
-        return render(request, 'account/home.html', {'profile': user_profile, 'form': form, 'tweet_list': tweet_list})
-    elif request.method == 'POST':
+        tweet_list = tweet_list.order_by("-id")
+        return render(
+            request,
+            "account/home.html",
+            {"profile": user_profile, "form": form, "tweet_list": tweet_list},
+        )
+    elif request.method == "POST":
         user_profile = Profile.objects.get(user=request.user)
         form = TweetForm(data=request.POST)
         if form.is_valid():
@@ -93,11 +100,15 @@ def home_view(request):
             tweet.save()
             form = TweetForm()
         tweet_list = Tweet.objects.none()
-        for tweet_each_user in Account.objects.prefetch_related('tweet'): 
+        for tweet_each_user in Account.objects.prefetch_related("tweet"):
             tweet_list = tweet_list | tweet_each_user.tweet.all()
-        tweet_list = tweet_list.filter(created_at__lte=timezone.now()).order_by('-id')
-        return render(request, 'account/home.html', {'profile': user_profile, 'form': form, 'tweet_list': tweet_list})
-    return HttpResponseNotAllowed(['GET', 'POST'])
+        tweet_list = tweet_list.order_by("-id")
+        return render(
+            request,
+            "account/home.html",
+            {"profile": user_profile, "form": form, "tweet_list": tweet_list},
+        )
+    return HttpResponseNotAllowed(["GET", "POST"])
 
 
 @login_required
@@ -108,9 +119,9 @@ def logout_view(request):
 
     logout(request)
     form = LoginForm()
-    redirect_url = reverse('account:login')
-    parameters = urlencode({'form': form})
-    url = f'{redirect_url}?{parameters}'
+    redirect_url = reverse("account:login")
+    parameters = urlencode({"form": form})
+    url = f"{redirect_url}?{parameters}"
 
     return redirect(url)
 
@@ -121,17 +132,25 @@ def edit_profile_view(request):
     プロフィールを編集するページ
     """
 
-    if request.method == 'GET':
+    if request.method == "GET":
         form = ProfileForm()
         user_profile = Profile.objects.get(user=request.user)
-        return render(request, 'account/edit_profile.html', {'form': form, 'profile': user_profile})
-    elif request.method == 'POST':
+        return render(
+            request,
+            "account/edit_profile.html",
+            {"form": form, "profile": user_profile},
+        )
+    elif request.method == "POST":
         user_profile = Profile.objects.get(user=request.user)
         form = ProfileForm(data=request.POST, instance=user_profile)
         if form.is_valid():
             form.save()
-        return render(request, 'account/edit_profile.html', {'form': form , 'profile': user_profile})
-    return HttpResponseNotAllowed(['GET', 'POST'])
+        return render(
+            request,
+            "account/edit_profile.html",
+            {"form": form, "profile": user_profile},
+        )
+    return HttpResponseNotAllowed(["GET", "POST"])
 
 
 @login_required
@@ -140,12 +159,12 @@ def tweet_detail_view(request, tweet_id):
     ツイートの詳細を編集するページ
     """
 
-    if request.method == 'GET':
+    if request.method == "GET":
         tweet = get_object_or_404(Tweet, pk=tweet_id)
         if tweet.created_at > timezone.now():
             raise Http404
-        return render(request, 'account/tweet_detail.html', {'tweet': tweet})
-    return HttpResponseNotAllowed(['GET'])
+        return render(request, "account/tweet_detail.html", {"tweet": tweet})
+    return HttpResponseNotAllowed(["GET"])
 
 
 @login_required
@@ -154,7 +173,7 @@ def delete_tweet_view(request, tweet_id):
     ツイートを削除するページ
     """
 
-    if request.method == 'GET':
+    if request.method == "GET":
         tweet = get_object_or_404(Tweet, pk=tweet_id)
         if tweet.created_at > timezone.now():
             raise Http404
@@ -163,10 +182,14 @@ def delete_tweet_view(request, tweet_id):
             user_profile = Profile.objects.get(user=request.user)
             form = TweetForm()
             tweet_list = Tweet.objects.none()
-            for tweet_each_user in Account.objects.prefetch_related('tweet'):        
+            for tweet_each_user in Account.objects.prefetch_related("tweet"):
                 tweet_list = tweet_list | tweet_each_user.tweet.all()
-            tweet_list = tweet_list.filter(created_at__lte=timezone.now()).order_by('-id')
-            return render(request, 'account/home.html', {'profile': user_profile, 'form': form, 'tweet_list': tweet_list})
+            tweet_list = tweet_list.order_by("-id")
+            return render(
+                request,
+                "account/home.html",
+                {"profile": user_profile, "form": form, "tweet_list": tweet_list},
+            )
         else:
             raise PermissionDenied
-    return HttpResponseNotAllowed(['GET'])
+    return HttpResponseNotAllowed(["GET"])
