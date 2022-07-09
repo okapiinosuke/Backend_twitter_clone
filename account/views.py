@@ -1,14 +1,14 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
-from django.http import Http404, HttpResponseNotAllowed
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import HttpResponseNotAllowed
+from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.utils import timezone
 from urllib.parse import urlencode
 
-from .forms import SignUpForm, LoginForm, ProfileForm, TweetForm
-from .models import Account, Profile, Tweet
+from .forms import SignUpForm, LoginForm, ProfileForm
+from .models import Account, Profile
+from tweet.forms import TweetForm
+from tweet.models import Tweet
 
 
 def start_view(request):
@@ -99,15 +99,7 @@ def home_view(request):
             tweet.user = request.user
             tweet.save()
             form = TweetForm()
-        tweet_list = Tweet.objects.none()
-        for tweet_each_user in Account.objects.prefetch_related("tweet"):
-            tweet_list = tweet_list | tweet_each_user.tweet.all()
-        tweet_list = tweet_list.order_by("-id")
-        return render(
-            request,
-            "account/home.html",
-            {"profile": user_profile, "form": form, "tweet_list": tweet_list},
-        )
+        return redirect("/home/")
     return HttpResponseNotAllowed(["GET", "POST"])
 
 
@@ -151,45 +143,3 @@ def edit_profile_view(request):
             {"form": form, "profile": user_profile},
         )
     return HttpResponseNotAllowed(["GET", "POST"])
-
-
-@login_required
-def tweet_detail_view(request, tweet_id):
-    """
-    ツイートの詳細を編集するページ
-    """
-
-    if request.method == "GET":
-        tweet = get_object_or_404(Tweet, pk=tweet_id)
-        if tweet.created_at > timezone.now():
-            raise Http404
-        return render(request, "account/tweet_detail.html", {"tweet": tweet})
-    return HttpResponseNotAllowed(["GET"])
-
-
-@login_required
-def delete_tweet_view(request, tweet_id):
-    """
-    ツイートを削除するページ
-    """
-
-    if request.method == "GET":
-        tweet = get_object_or_404(Tweet, pk=tweet_id)
-        if tweet.created_at > timezone.now():
-            raise Http404
-        if tweet.user == request.user:
-            tweet.delete()
-            user_profile = Profile.objects.get(user=request.user)
-            form = TweetForm()
-            tweet_list = Tweet.objects.none()
-            for tweet_each_user in Account.objects.prefetch_related("tweet"):
-                tweet_list = tweet_list | tweet_each_user.tweet.all()
-            tweet_list = tweet_list.order_by("-id")
-            return render(
-                request,
-                "account/home.html",
-                {"profile": user_profile, "form": form, "tweet_list": tweet_list},
-            )
-        else:
-            raise PermissionDenied
-    return HttpResponseNotAllowed(["GET"])

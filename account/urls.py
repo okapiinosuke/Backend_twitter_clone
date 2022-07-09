@@ -13,6 +13,4 @@ urlpatterns = [
     path("home/", views.home_view, name="home"),
     path("logout/", views.logout_view, name="logout"),
     path("edit_profile/", views.edit_profile_view, name="edit_profile"),
-    path("tweet_<int:tweet_id>", views.tweet_detail_view, name="tweet_detail"),
-    path("tweet_{<int:tweet_id>}/delete", views.delete_tweet_view, name="delete_tweet"),
 ]

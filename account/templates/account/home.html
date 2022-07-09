@@ -40,7 +40,7 @@
             <p class="card-text">{{ tweet.content | linebreaksbr }}</p>
           </div>
           <div align="right">
-            <a type="button" class="btn btn-outline-primary" "text-end" data-mdb-ripple-color="dark" href="{% url 'account:tweet_detail' tweet.pk%}">
+            <a type="button" class="btn btn-outline-primary" "text-end" data-mdb-ripple-color="dark" href="{% url 'tweet:tweet_detail' tweet.pk%}">
               詳細
             </a>
           </div>
