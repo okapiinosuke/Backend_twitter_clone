@@ -1,5 +1,3 @@
-import re
-
 from django.http import HttpResponseNotAllowed
 from django.test import TestCase
 from django.urls import reverse
@@ -335,7 +333,8 @@ class LoginTest(TestCase):
             path=self.path, data={"username": "sample", "password": "instance1"}
         )
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(re.findall("user=(.*)", response["location"])[0], "sample")
+
+        self.assertTrue("/home/", response["location"][0])
 
     def test_incorrect_password(self):
         """

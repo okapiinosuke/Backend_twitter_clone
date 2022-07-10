@@ -64,11 +64,7 @@ def login_view(request):
             if user:
                 if user.is_active:
                     login(request, user)
-                    tweet_form = TweetForm()
-                    redirect_url = reverse("account:home")
-                    parameters = urlencode({"user": user, "tweet_form": tweet_form})
-                    url = f"{redirect_url}?{parameters}"
-                    return redirect(url)
+                    return redirect("/home/")
         return render(request, "account/login.html", {"form": form})
     return HttpResponseNotAllowed(["GET", "POST"])
 

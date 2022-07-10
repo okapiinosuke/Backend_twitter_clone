@@ -22,8 +22,8 @@ class Profile(models.Model):
         Account, on_delete=models.CASCADE, related_name="profile"
     )
     profile = models.TextField(_("profile"), default="")
-    created_at = models.DateTimeField("作成日時", auto_now_add=True, blank=True)
-    updated_at = models.DateTimeField("更新日時", auto_now=True, blank=True)
+    created_at = models.DateTimeField("作成日時", auto_now_add=True)
+    updated_at = models.DateTimeField("更新日時", auto_now=True)
 
     def __str__(self):
         return self.profile
