@@ -8,7 +8,7 @@ from .forms import TweetForm
 from account.models import Account, Profile
 
 
-class TweetTest(TestCase):
+class TweetCreateTest(TestCase):
     """
     ツイート機能に対するテスト
     """
@@ -64,6 +64,32 @@ class TweetTest(TestCase):
         self.assertEqual(f.is_valid(), False)
         self.assertEqual(f.errors["content"][0], "文字数は，255文字以下です．")
 
+    def test_other_request(self):
+        """
+        GET及びPOSTメソッド以外のリクエストを送信した場合
+        """
+        self.assertEqual(Tweet.objects.all().count(), 0)
+        response = self.client.post(path=self.path, data={"content": "Hello, world."})
+        self.assertEqual(Tweet.objects.all().count(), 1)
+
+        response = self.client.put(path=self.path)
+        self.assertEqual(response.status_code, 405)
+        self.assertIsInstance(response, HttpResponseNotAllowed)
+
+
+class TweetDetailTest(TestCase):
+    """
+    ツイート機能に対するテスト
+    """
+
+    def setUp(self):
+        Account.objects.create_user(
+            email="sample1@example.com", username="sample1", password="instance1"
+        )
+        Profile.objects.create(user=Account.objects.get(username="sample1"))
+        self.client.login(username="sample1", password="instance1")
+        self.path = reverse("account:home")
+
     def test_confirm_tweet(self):
         """
         存在するツイートの詳細を確認した場合
@@ -85,8 +111,39 @@ class TweetTest(TestCase):
         """
 
         self.assertEqual(Tweet.objects.all().count(), 0)
-        response = self.client.get(path=redirect("/tweet_1"))
+        response = self.client.get(path=redirect("/tweets/1"))
         self.assertEqual(response.status_code, 404)
+
+    def test_other_request(self):
+        """
+        GETメソッド以外のリクエストを送信した場合
+        """
+        self.assertEqual(Tweet.objects.all().count(), 0)
+        response = self.client.post(path=self.path, data={"content": "Hello, world."})
+        self.assertEqual(Tweet.objects.all().count(), 1)
+
+        tweet = Tweet.objects.filter(content="Hello, world.")[0]
+        response = self.client.put(path=reverse("tweet:tweet_detail", args=[tweet.id]))
+        self.assertEqual(response.status_code, 405)
+        self.assertIsInstance(response, HttpResponseNotAllowed)
+
+
+class TweetDeleteTest(TestCase):
+    """
+    ツイート機能に対するテスト
+    """
+
+    def setUp(self):
+        Account.objects.create_user(
+            email="sample1@example.com", username="sample1", password="instance1"
+        )
+        Profile.objects.create(user=Account.objects.get(username="sample1"))
+        Account.objects.create_user(
+            email="sample2@example.com", username="sample2", password="instance2"
+        )
+        Profile.objects.create(user=Account.objects.get(username="sample2"))
+        self.client.login(username="sample1", password="instance1")
+        self.path = reverse("account:home")
 
     def test_delete_tweet(self):
         """
@@ -116,21 +173,13 @@ class TweetTest(TestCase):
 
     def test_other_request(self):
         """
-        GET及びPOSTメソッド（tweet_detailとdelete_tweetはGETのみ）以外のリクエストを送信した場合
+        GETメソッド以外のリクエストを送信した場合
         """
         self.assertEqual(Tweet.objects.all().count(), 0)
         response = self.client.post(path=self.path, data={"content": "Hello, world."})
         self.assertEqual(Tweet.objects.all().count(), 1)
 
         tweet = Tweet.objects.filter(content="Hello, world.")[0]
-        response = self.client.put(path=self.path)
-        self.assertEqual(response.status_code, 405)
-        self.assertIsInstance(response, HttpResponseNotAllowed)
-
-        response = self.client.post(path=reverse("tweet:tweet_detail", args=[tweet.id]))
-        self.assertEqual(response.status_code, 405)
-        self.assertIsInstance(response, HttpResponseNotAllowed)
-
         response = self.client.post(path=reverse("tweet:delete_tweet", args=[tweet.id]))
         self.assertEqual(response.status_code, 405)
         self.assertIsInstance(response, HttpResponseNotAllowed)
