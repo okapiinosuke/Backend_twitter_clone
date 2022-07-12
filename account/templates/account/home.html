@@ -3,25 +3,59 @@
 {% block content %}
 
 <div class="container">
-    <div class="row">
-      <div class="col">
-        <p></p>
-        <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">{{ user.username }}</h5>
-              <p class="card-text">{{ profile | linebreaksbr }}</p>
-            </div>
+  <div class="row">
+    <div class="col-md-5">
+      <p></p>
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">{{ user.username }}</h5>
+          <div class="break-word">
+            <p class="card-text">{{ profile | linebreaksbr }}</p>
           </div>
+        </div>
       </div>
-      <div class="col">
-      </div>
-      <div class="col">
-        <p></p>
-        <a href="{% url 'account:edit_profile' %}">プロフィール編集</a>
-        <p></p>
-        <a href="{% url 'account:logout' %}">ログアウト</a>
-      </div>
+      <p></p>
+      <form method="post">
+        {% csrf_token %}
+        {% for error in field.errors %}
+          <p style="color: red">{{ error }}</p>
+        {% endfor %}
+        <div class="form-outline mb-5">
+          {% for field in form %}
+            <p>{{ field.label_tag }}</p>
+            <p>{{ field }}</p>
+          {% endfor %}
+        </div>
+        <div class="form-send">
+          <button type="submit" class="btn btn-primary btn-block mb-5">ツイート</button>
+        </div>
+      </form>
     </div>
-  </div>
+    <div class="col-md-5">
+      {% for tweet in tweet_list %}
+      <p></p>
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">{{ tweet.user }}</h5>
+          <div class="break-word">
+            <p class="card-text">{{ tweet.content | linebreaksbr }}</p>
+          </div>
+          <div align="right">
+            <a type="button" class="btn btn-outline-primary" "text-end" data-mdb-ripple-color="dark" href="{% url 'tweet:tweet_detail' tweet.pk%}">
+              詳細
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="col-md-2" "row d-flex justify-content-end">
+      <p></p>
+      <a href="{% url 'account:edit_profile' %}">プロフィール編集</a>
+      <p></p>
+      <a href="{% url 'account:logout' %}">ログアウト</a>
+    </div>
+  </div>  
+</div>
 
 {% endblock %}
