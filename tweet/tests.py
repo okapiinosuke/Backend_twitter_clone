@@ -79,7 +79,7 @@ class TweetCreateTest(TestCase):
 
 class TweetDetailTest(TestCase):
     """
-    ツイート機能に対するテスト
+    ツイートの詳細確認機能に対するテスト
     """
 
     def setUp(self):
@@ -130,7 +130,7 @@ class TweetDetailTest(TestCase):
 
 class TweetDeleteTest(TestCase):
     """
-    ツイート機能に対するテスト
+    ツイート削除機能に対するテスト
     """
 
     def setUp(self):

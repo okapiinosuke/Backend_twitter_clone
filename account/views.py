@@ -1,12 +1,14 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseNotAllowed
-from django.shortcuts import redirect, render
-from django.urls import reverse
+from django.db.models import Prefetch
+from django.http import HttpResponseNotAllowed, HttpResponseForbidden
 from urllib.parse import urlencode
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.views.decorators.http import require_http_methods
 
 from .forms import SignUpForm, LoginForm, ProfileForm
-from .models import Account, Profile
+from .models import Account, Profile, FollowConnection
 from tweet.forms import TweetForm
 from tweet.models import Tweet
 
@@ -139,3 +141,82 @@ def edit_profile_view(request):
             {"form": form, "profile": user_profile},
         )
     return HttpResponseNotAllowed(["GET", "POST"])
+
+
+@login_required
+@require_http_methods(["GET"])
+def account_detail_view(request, account_id):
+    """
+    アカウントの詳細を確認するページ
+    """
+
+    if request.method == "GET":
+        account = get_object_or_404(Account, pk=account_id)
+        user_profile = Profile.objects.get(user=account)
+        tweet_list = (
+            (
+                Account.objects.filter(pk=account_id).prefetch_related(
+                    Prefetch(
+                        "tweet",
+                        queryset=Tweet.objects.select_related("user").filter(
+                            user=account
+                        ),
+                        to_attr="tweet_account",
+                    )
+                )
+            )[0]
+            .tweet.all()
+            .order_by("-created_at")
+        )
+        follow_flg = FollowConnection.objects.filter(
+            follower=request.user, following=account
+        ).exists()
+        return render(
+            request,
+            "account/account_detail.html",
+            {
+                "account": account,
+                "profile": user_profile,
+                "tweet_list": tweet_list,
+                "follow_flg": follow_flg,
+            },
+        )
+
+
+@login_required
+@require_http_methods(["GET"])
+def follow_account_view(request, account_id):
+    """
+    アカウントをフォローするページ
+    """
+
+    follower = get_object_or_404(Account, pk=request.user.id)
+    following = get_object_or_404(Account, pk=account_id)
+
+    if follower == following:
+        return HttpResponseForbidden()
+
+    _, is_create = FollowConnection.objects.get_or_create(
+        follower=follower, following=following
+    )
+    if not is_create:
+        return HttpResponseForbidden()
+
+    return redirect(f"/accounts/{account_id}")
+
+
+@login_required
+@require_http_methods(["GET"])
+def unfollow_account_view(request, account_id):
+    """
+    アカウントをフォロー解除するページ
+    """
+
+    follower = get_object_or_404(Account, pk=request.user.id)
+    following = get_object_or_404(Account, pk=account_id)
+
+    if follower == following:
+        return HttpResponseForbidden()
+    follow = get_object_or_404(FollowConnection, follower=follower, following=following)
+    follow.delete()
+    return redirect(f"/accounts/{account_id}")

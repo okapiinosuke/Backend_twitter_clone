@@ -27,3 +27,16 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.profile
+
+
+class FollowConnection(models.Model):
+    follower = models.ForeignKey(
+        Account, related_name="follower", on_delete=models.CASCADE
+    )
+    following = models.ForeignKey(
+        Account, related_name="following", on_delete=models.CASCADE
+    )
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return "{} : {}".format(self.follower.username, self.following.username)
