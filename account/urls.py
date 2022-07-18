@@ -13,15 +13,27 @@ urlpatterns = [
     path("home/", views.home_view, name="home"),
     path("logout/", views.logout_view, name="logout"),
     path("edit_profile/", views.edit_profile_view, name="edit_profile"),
-    path("accounts/<int:account_id>", views.account_detail_view, name="account_detail"),
     path(
-        "accounts/<int:account_id>/follow",
-        views.follow_account_view,
-        name="follow_account",
+        "accounts/<int:account_id>/", views.account_detail_view, name="account_detail"
     ),
     path(
-        "accounts/<int:account_id>/unfollow",
+        "accounts/<int:account_id>/follow/",
+        views.follow_account_view,
+        name="follow",
+    ),
+    path(
+        "accounts/<int:account_id>/unfollow/",
         views.unfollow_account_view,
-        name="unfollow_account",
+        name="unfollow",
+    ),
+    path(
+        "accounts/<int:account_id>/followee/",
+        views.account_followee_view,
+        name="followee",
+    ),
+    path(
+        "accounts/<int:account_id>/follower/",
+        views.account_follower_view,
+        name="follower",
     ),
 ]

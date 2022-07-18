@@ -1,0 +1,24 @@
+{% extends 'account/base.html' %}
+
+{% block content %}
+
+<div class="d-flex justify-content-center">
+  <div class="col-md-5">
+    <h2 style="margin-top: 20mm; margin-bottom: 15mm;">
+      <strong>フォロワー</strong>
+    </h2>
+    <div class="card text-center">
+      {% for follower_connection in follower_connection_list %}
+        <div class="card-body">
+          <a class="link-dark" href="{% url 'account:account_detail' follower_connection.follower.pk %}">{{ follower_connection.follower.username }}</a>
+          <p></p>
+          <div class="break-word">
+            <p class="card-text">{{ follower_connection.follower.profile | linebreaksbr }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

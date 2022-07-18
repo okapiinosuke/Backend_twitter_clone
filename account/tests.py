@@ -458,9 +458,9 @@ class FollowTest(TestCase):
         )
         Profile.objects.create(user=Account.objects.get(username="sample2"))
         self.follower_user = Account.objects.get(username="sample1")
-        self.following_user = Account.objects.get(username="sample2")
+        self.followee_user = Account.objects.get(username="sample2")
         self.client.login(username="sample1", password="instance1")
-        self.path = reverse("account:follow_account", args=[self.following_user.id])
+        self.path = reverse("account:follow", args=[self.followee_user.id])
 
     def test_follow_account(self):
         """
@@ -468,15 +468,31 @@ class FollowTest(TestCase):
         """
 
         self.assertEqual(FollowConnection.objects.all().count(), 0)
-        response = self.client.get(path=self.path)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.followee_user.id])
+        )
+        self.assertEqual(response.context["follower_num"], 0)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.follower_user.id])
+        )
+        self.assertEqual(response.context["followee_num"], 0)
+        response = self.client.post(path=self.path)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(FollowConnection.objects.all().count(), 1)
         self.assertEqual(
             FollowConnection.objects.filter(
-                follower=self.follower_user, following=self.following_user
+                follower=self.follower_user, followee=self.followee_user
             ).count(),
             1,
         )
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.followee_user.id])
+        )
+        self.assertEqual(response.context["follower_num"], 1)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.follower_user.id])
+        )
+        self.assertEqual(response.context["followee_num"], 1)
 
     def test_follow_myself(self):
         """
@@ -485,34 +501,60 @@ class FollowTest(TestCase):
 
         self.client.login(username="sample2", password="instance2")
         self.assertEqual(FollowConnection.objects.all().count(), 0)
-        response = self.client.get(path=self.path)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.followee_user.id])
+        )
+        self.assertEqual(response.context["follower_num"], 0)
+        self.assertEqual(response.context["followee_num"], 0)
+        response = self.client.post(path=self.path)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(FollowConnection.objects.all().count(), 0)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.followee_user.id])
+        )
+        self.assertEqual(response.context["follower_num"], 0)
+        self.assertEqual(response.context["followee_num"], 0)
 
     def test_duplicated_follow(self):
         """
         二重でフォローした場合
         """
         self.assertEqual(FollowConnection.objects.all().count(), 0)
-        response = self.client.get(path=self.path)
+        response = self.client.post(path=self.path)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(FollowConnection.objects.all().count(), 1)
         self.assertEqual(
             FollowConnection.objects.filter(
-                follower=self.follower_user, following=self.following_user
+                follower=self.follower_user, followee=self.followee_user
             ).count(),
             1,
         )
-        response = self.client.get(path=self.path)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.followee_user.id])
+        )
+        self.assertEqual(response.context["follower_num"], 1)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.follower_user.id])
+        )
+        self.assertEqual(response.context["followee_num"], 1)
+        response = self.client.post(path=self.path)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(FollowConnection.objects.all().count(), 1)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.followee_user.id])
+        )
+        self.assertEqual(response.context["follower_num"], 1)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.follower_user.id])
+        )
+        self.assertEqual(response.context["followee_num"], 1)
 
     def test_other_requests(self):
         """
-        GETメソッド以外のリクエストを送信した場合
+        GET及びPOSTメソッド以外のリクエストを送信した場合
         """
 
-        response = self.client.post(path=self.path)
+        response = self.client.put(path=self.path)
         self.assertEqual(response.status_code, 405)
         self.assertIsInstance(response, HttpResponseNotAllowed)
 
@@ -532,12 +574,12 @@ class UnFollowTest(TestCase):
         )
         Profile.objects.create(user=Account.objects.get(username="sample2"))
         self.follower_user = Account.objects.get(username="sample1")
-        self.following_user = Account.objects.get(username="sample2")
+        self.followee_user = Account.objects.get(username="sample2")
         FollowConnection.objects.create(
-            follower=self.follower_user, following=self.following_user
+            follower=self.follower_user, followee=self.followee_user
         )
         self.client.login(username="sample1", password="instance1")
-        self.path = reverse("account:unfollow_account", args=[self.following_user.id])
+        self.path = reverse("account:unfollow", args=[self.followee_user.id])
 
     def test_unfollow_account(self):
         """
@@ -545,9 +587,25 @@ class UnFollowTest(TestCase):
         """
 
         self.assertEqual(FollowConnection.objects.all().count(), 1)
-        response = self.client.get(path=self.path)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.followee_user.id])
+        )
+        self.assertEqual(response.context["follower_num"], 1)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.follower_user.id])
+        )
+        self.assertEqual(response.context["followee_num"], 1)
+        response = self.client.post(path=self.path)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(FollowConnection.objects.all().count(), 0)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.followee_user.id])
+        )
+        self.assertEqual(response.context["follower_num"], 0)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.follower_user.id])
+        )
+        self.assertEqual(response.context["followee_num"], 0)
 
     def test_unfollow_myself(self):
         """
@@ -556,9 +614,19 @@ class UnFollowTest(TestCase):
 
         self.client.login(username="sample2", password="instance2")
         self.assertEqual(FollowConnection.objects.all().count(), 1)
-        response = self.client.get(path=self.path)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.followee_user.id])
+        )
+        self.assertEqual(response.context["follower_num"], 1)
+        self.assertEqual(response.context["followee_num"], 0)
+        response = self.client.post(path=self.path)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(FollowConnection.objects.all().count(), 1)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.followee_user.id])
+        )
+        self.assertEqual(response.context["follower_num"], 1)
+        self.assertEqual(response.context["followee_num"], 0)
 
     def test_duplicated_unfollow(self):
         """
@@ -566,12 +634,20 @@ class UnFollowTest(TestCase):
         """
 
         self.assertEqual(FollowConnection.objects.all().count(), 1)
-        response = self.client.get(path=self.path)
+        response = self.client.post(path=self.path)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(FollowConnection.objects.all().count(), 0)
-        response = self.client.get(path=self.path)
+        response = self.client.post(path=self.path)
         self.assertEqual(response.status_code, 404)
         self.assertEqual(FollowConnection.objects.all().count(), 0)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.followee_user.id])
+        )
+        self.assertEqual(response.context["follower_num"], 0)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.follower_user.id])
+        )
+        self.assertEqual(response.context["followee_num"], 0)
 
     def test_unfollow_not_follow_account(self):
         """
@@ -581,16 +657,32 @@ class UnFollowTest(TestCase):
         self.client.login(username="sample2", password="instance2")
         self.assertEqual(FollowConnection.objects.all().count(), 1)
         response = self.client.get(
-            path=reverse("account:unfollow_account", args=[self.follower_user.id])
+            path=reverse("account:account_detail", args=[self.follower_user.id])
+        )
+        self.assertEqual(response.context["follower_num"], 0)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.followee_user.id])
+        )
+        self.assertEqual(response.context["followee_num"], 0)
+        response = self.client.post(
+            path=reverse("account:unfollow", args=[self.follower_user.id])
         )
         self.assertEqual(response.status_code, 404)
         self.assertEqual(FollowConnection.objects.all().count(), 1)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.follower_user.id])
+        )
+        self.assertEqual(response.context["follower_num"], 0)
+        response = self.client.get(
+            path=reverse("account:account_detail", args=[self.followee_user.id])
+        )
+        self.assertEqual(response.context["followee_num"], 0)
 
     def test_other_requests(self):
         """
-        GETメソッド以外のリクエストを送信した場合
+        GET及びPOSTメソッド以外のリクエストを送信した場合
         """
 
-        response = self.client.post(path=self.path)
+        response = self.client.put(path=self.path)
         self.assertEqual(response.status_code, 405)
         self.assertIsInstance(response, HttpResponseNotAllowed)

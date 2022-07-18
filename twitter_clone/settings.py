@@ -132,3 +132,22 @@ AUTH_USER_MODEL = "account.Account"
 LOGIN_URL = "account:login"
 LOGIN_REDIRECT_URL = "account:home"
 LOGOUT_REDIRECT_URL = "account:login"
+
+"""LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+        },
+    },
+    "loggers": {
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+        },
+    },
+}  # for confirming log"""
+
+# APPEND_SLASH = False

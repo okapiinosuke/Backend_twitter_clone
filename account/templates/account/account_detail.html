@@ -8,13 +8,21 @@
       <div class="card-body">
         <a class="link-dark .justify-content-center" href="{% url 'account:account_detail' account.pk %}">{{ account.username }}</a>
         <p></p>
-        {% if account != user %}
-          {% if follow_flg %}
-            <a href="{% url 'account:unfollow_account' account.pk %}"  class="btn btn-danger btn-rounded">フォロー解除</a>
-          {% else %}
-            <a href="{% url 'account:follow_account' account.pk %}" class="btn btn-primary btn-rounded">フォロー</a>
+          {% if account != user %}
+            <input type="hidden" name="hidden_data" value="">
+            {% if follow_flg %}
+              <form action="{% url 'account:unfollow' account.pk %}" method="post">
+                {% csrf_token %}
+                <button type="submit" name="unfollow_button" class="btn btn-danger btn-rounded">フォロー解除</button>
+            {% else %}
+              <form action="{% url 'account:follow' account.pk %}" method="post">
+                {% csrf_token %}
+                <button name="follow_button" class="btn btn-primary btn-rounded">フォロー</button>
+            {% endif %}
           {% endif %}
-        {% endif %}
+        </form>
+        <a class="link-dark .justify-content-center" href="{% url 'account:followee' account.pk %}">フォロー中：{{ followee_num }}</a>
+        <a class="link-dark .justify-content-center" href="{% url 'account:follower' account.pk %}">フォロワー：{{ follower_num }}</a>
         <p></p>
         <div class="break-word">
           <p class="card-text">{{ profile | linebreaksbr }}</p>
