@@ -4,7 +4,7 @@
 
   <div class="card">
     <div class="card-body">
-      <h5 class="card-title">{{ tweet.user }}</h5>
+      <a class="link-dark" href="{% url 'account:account_detail' tweet.user.pk %}">{{ tweet.user }}</a>
       <p class="card-text">{{ tweet.content | linebreaksbr }}</p>
       <p class="card-text" "fs-6"><font color="silver">{{ tweet.created_at }}</font></p>
       <div align="right">

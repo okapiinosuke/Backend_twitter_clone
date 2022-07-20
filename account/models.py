@@ -27,3 +27,23 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.profile
+
+
+class FollowConnection(models.Model):
+    follower = models.ForeignKey(
+        Account, related_name="follower", on_delete=models.CASCADE
+    )
+    followee = models.ForeignKey(
+        Account, related_name="followee", on_delete=models.CASCADE
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["follower", "followee"], name="follow_connection_unique"
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.follower.username} : {self.followee.username}"

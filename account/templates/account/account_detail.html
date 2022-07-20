@@ -1,0 +1,51 @@
+{% extends 'account/base.html' %}
+
+{% block content %}
+
+<div class="d-flex justify-content-center">
+  <div class="col-md-5">
+    <div class="card text-center">
+      <div class="card-body">
+        <a class="link-dark .justify-content-center" href="{% url 'account:account_detail' account.pk %}">{{ account.username }}</a>
+        <p></p>
+          {% if account != user %}
+            <input type="hidden" name="hidden_data" value="">
+            {% if follow_flg %}
+              <form action="{% url 'account:unfollow' account.pk %}" method="post">
+                {% csrf_token %}
+                <button type="submit" name="unfollow_button" class="btn btn-danger btn-rounded">フォロー解除</button>
+            {% else %}
+              <form action="{% url 'account:follow' account.pk %}" method="post">
+                {% csrf_token %}
+                <button name="follow_button" class="btn btn-primary btn-rounded">フォロー</button>
+            {% endif %}
+          {% endif %}
+        </form>
+        <a class="link-dark .justify-content-center" href="{% url 'account:followings' account.pk %}">フォロー中：{{ followee_num }}</a>
+        <a class="link-dark .justify-content-center" href="{% url 'account:followers' account.pk %}">フォロワー：{{ follower_num }}</a>
+        <p></p>
+        <div class="break-word">
+          <p class="card-text">{{ profile | linebreaksbr }}</p>
+        </div>
+      </div>
+    </div>
+    {% for tweet in tweet_list %}
+      <p></p>
+      <div class="card">
+        <div class="card-body">
+          <a class="link-dark" href="{% url 'account:account_detail' tweet.user.pk %}">{{ tweet.user }}</a>
+          <div class="break-word">
+            <p class="card-text">{{ tweet.content | linebreaksbr }}</p>
+          </div>
+          <div align="right">
+            <a type="button" class="btn btn-outline-primary" "text-end" data-mdb-ripple-color="dark" href="{% url 'tweet:tweet_detail' tweet.pk%}">
+              詳細
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}
