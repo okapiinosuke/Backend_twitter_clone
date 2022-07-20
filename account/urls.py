@@ -27,13 +27,13 @@ urlpatterns = [
         name="unfollow",
     ),
     path(
-        "accounts/<int:account_id>/followee/",
-        views.account_followee_view,
-        name="followee",
+        "accounts/<int:account_id>/followings/",
+        views.account_followings_view,
+        name="followings",
     ),
     path(
-        "accounts/<int:account_id>/follower/",
-        views.account_follower_view,
-        name="follower",
+        "accounts/<int:account_id>/followers/",
+        views.account_followers_view,
+        name="followers",
     ),
 ]

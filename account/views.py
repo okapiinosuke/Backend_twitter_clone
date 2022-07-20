@@ -185,7 +185,7 @@ def account_detail_view(request, account_id):
 
 @login_required
 @require_http_methods(["GET"])
-def account_followee_view(request, account_id):
+def account_followings_view(request, account_id):
     """
     アカウントがフォローしているアカウントの一覧を表示するページ
     """
@@ -202,14 +202,14 @@ def account_followee_view(request, account_id):
 
         return render(
             request,
-            "account/account_followee.html",
+            "account/account_followings.html",
             {"followee_connection_list": followee_connection_list},
         )
 
 
 @login_required
 @require_http_methods(["GET"])
-def account_follower_view(request, account_id):
+def account_followers_view(request, account_id):
     """
     アカウントがフォローされているアカウントの一覧を表示するページ
     """
@@ -226,7 +226,7 @@ def account_follower_view(request, account_id):
 
         return render(
             request,
-            "account/account_follower.html",
+            "account/account_followers.html",
             {"follower_connection_list": follower_connection_list},
         )
 

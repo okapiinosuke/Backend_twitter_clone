@@ -149,5 +149,3 @@ LOGOUT_REDIRECT_URL = "account:login"
         },
     },
 }  # for confirming log"""
-
-# APPEND_SLASH = False

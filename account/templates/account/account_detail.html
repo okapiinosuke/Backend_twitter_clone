@@ -21,8 +21,8 @@
             {% endif %}
           {% endif %}
         </form>
-        <a class="link-dark .justify-content-center" href="{% url 'account:followee' account.pk %}">フォロー中：{{ followee_num }}</a>
-        <a class="link-dark .justify-content-center" href="{% url 'account:follower' account.pk %}">フォロワー：{{ follower_num }}</a>
+        <a class="link-dark .justify-content-center" href="{% url 'account:followings' account.pk %}">フォロー中：{{ followee_num }}</a>
+        <a class="link-dark .justify-content-center" href="{% url 'account:followers' account.pk %}">フォロワー：{{ follower_num }}</a>
         <p></p>
         <div class="break-word">
           <p class="card-text">{{ profile | linebreaksbr }}</p>
