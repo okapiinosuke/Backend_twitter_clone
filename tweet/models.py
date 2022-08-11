@@ -11,3 +11,23 @@ class Tweet(models.Model):
 
     def __str__(self):
         return self.content
+
+
+class FavoriteConnection(models.Model):
+    favorite = models.ForeignKey(
+        Account, related_name="favorite", on_delete=models.CASCADE
+    )
+    favorited = models.ForeignKey(
+        Tweet, related_name="favorited", on_delete=models.CASCADE
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["favorite", "favorited"], name="favorite_connection_unique"
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.favorite.username} : {self.favorited.content}"

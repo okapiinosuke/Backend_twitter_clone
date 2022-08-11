@@ -1,9 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
-from .models import Tweet
+from .models import Tweet, FavoriteConnection
 
 
 @login_required
@@ -30,3 +31,44 @@ def delete_tweet_view(request, tweet_id):
         return redirect("/home/")
     else:
         raise PermissionDenied
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def favorite_tweet_view(request, tweet_id):
+    """
+    ツイートをいいねするページ
+    """
+
+    if request.method == "POST":
+        favorite = request.user
+        favorited = get_object_or_404(Tweet, pk=tweet_id)
+
+        _, is_created = FavoriteConnection.objects.get_or_create(
+            favorite=favorite, favorited=favorited
+        )
+        if not is_created:
+            return HttpResponseForbidden()
+        data = {"tweet_id": tweet_id}
+        return JsonResponse(data)
+    # return redirect("/home/")
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def unfavorite_tweet_view(request, tweet_id):
+    """
+    ツイートのいいねを解除するページ
+    """
+
+    if request.method == "POST":
+        favorite = request.user
+        favorited = get_object_or_404(Tweet, pk=tweet_id)
+
+        favorite_connection = get_object_or_404(
+            FavoriteConnection, favorite=favorite, favorited=favorited
+        )
+        favorite_connection.delete()
+        data = {"tweet_id": tweet_id}
+        return JsonResponse(data)
+    # return redirect("/home/")

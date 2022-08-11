@@ -3,9 +3,13 @@
     <head>
         <title>Twitter</title>
         <link rel="stylesheet" href="{% static 'css/mdb.min.css' %}">
-
     </head>
     <body>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script
+            type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.4.0/mdb.min.js"
+>       </script>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
             <div class="container-fluid">
               {% if request.user.is_authenticated %}

@@ -13,7 +13,7 @@ from django.views.decorators.http import require_http_methods
 from .forms import SignUpForm, LoginForm, ProfileForm
 from .models import Account, Profile, FollowConnection
 from tweet.forms import TweetForm
-from tweet.models import Tweet
+from tweet.models import Tweet, FavoriteConnection
 
 
 def start_view(request):
@@ -87,10 +87,25 @@ def home_view(request):
         for tweet_each_user in Account.objects.prefetch_related("tweet"):
             tweet_list = tweet_list | tweet_each_user.tweet.all()
         tweet_list = tweet_list.order_by("-id")
+        tweet_and_favorited_list = []
+        for i in range(tweet_list.count()):
+            tweet_and_favorited_list.append(
+                [
+                    tweet_list[i],
+                    FavoriteConnection.objects.filter(
+                        favorite=request.user, favorited=tweet_list[i]
+                    ).exists(),
+                ]
+            )
+
         return render(
             request,
             "account/home.html",
-            {"profile": user_profile, "form": form, "tweet_list": tweet_list},
+            {
+                "profile": user_profile,
+                "form": form,
+                "tweet_and_favorited_list": tweet_and_favorited_list,
+            },
         )
     elif request.method == "POST":
         user_profile = Profile.objects.get(user=request.user)
@@ -101,6 +116,7 @@ def home_view(request):
             tweet.save()
             form = TweetForm()
         return redirect("/home/")
+
     return HttpResponseNotAllowed(["GET", "POST"])
 
 
@@ -162,6 +178,11 @@ def account_detail_view(request, account_id):
             .filter(user=account)
             .order_by("-created_at")
         )
+        favorite_connection_list = (
+            FavoriteConnection.objects.select_related("favorited")
+            .filter(favorite=account)
+            .order_by("-id")
+        )
         follow_flg = FollowConnection.objects.filter(
             follower=request.user, followee=account
         ).exists()
@@ -177,6 +198,7 @@ def account_detail_view(request, account_id):
                 "follow_flg": follow_flg,
                 "followee_num": followee_num,
                 "follower_num": follower_num,
+                "favorite_connection_list": favorite_connection_list,
             },
         )
     else:
