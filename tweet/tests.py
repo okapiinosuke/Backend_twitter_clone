@@ -225,7 +225,7 @@ class FavoriteTest(TestCase):
         self.assertEqual(FavoriteConnection.objects.all().count(), 1)
         self.assertEqual(
             FavoriteConnection.objects.filter(
-                favorite=self.user1, favorited=self.favorited_tweet1
+                favorite_account=self.user1, favorited_tweet=self.favorited_tweet1
             ).count(),
             1,
         )
@@ -235,7 +235,7 @@ class FavoriteTest(TestCase):
         self.assertEqual(response.context["favorite_connection_list"].count(), 1)
         self.assertIsNotNone(
             FavoriteConnection.objects.filter(
-                favorite=self.user1, favorited=self.favorited_tweet1
+                favorite_account=self.user1, favorited_tweet=self.favorited_tweet1
             )
         )
 
@@ -259,7 +259,7 @@ class FavoriteTest(TestCase):
         self.assertEqual(FavoriteConnection.objects.all().count(), 1)
         self.assertEqual(
             FavoriteConnection.objects.filter(
-                favorite=self.user1, favorited=self.favorited_tweet1
+                favorite_account=self.user1, favorited_tweet=self.favorited_tweet1
             ).count(),
             1,
         )
@@ -308,10 +308,10 @@ class UnFavoriteTest(TestCase):
         self.favorited_tweet2 = Tweet.objects.create(user=self.user1, content="bbb")
 
         FavoriteConnection.objects.create(
-            favorite=self.user1, favorited=self.favorited_tweet1
+            favorite_account=self.user1, favorited_tweet=self.favorited_tweet1
         )
         FavoriteConnection.objects.create(
-            favorite=self.user1, favorited=self.favorited_tweet2
+            favorite_account=self.user1, favorited_tweet=self.favorited_tweet2
         )
 
         self.client.login(username="sample1", password="instance1")

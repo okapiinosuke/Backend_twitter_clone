@@ -32,23 +32,23 @@
       </form>
     </div>
     <div class="col-md-5">
-      {% for tweet_and_favorited in tweet_and_favorited_list %}
+      {% for tweet in tweet_list %}
         <p></p>
         <div class="card">
           <div class="card-body">
-            <a class="link-dark" href="{% url 'account:account_detail' tweet_and_favorited.0.user.pk %}">{{ tweet_and_favorited.0.user }}</a>
+            <a class="link-dark" href="{% url 'account:account_detail' tweet.user.pk %}">{{ tweet.user }}</a>
             <div class="break-word">
-              <p class="card-text">{{ tweet_and_favorited.0.content | linebreaksbr }}</p>
+              <p class="card-text">{{ tweet.content | linebreaksbr }}</p>
             </div>
             <div align="left">
-              {% if tweet_and_favorited.1 %}
-                <button id="unfavorite" class="btn btn-danger btn-rounded" name="{{ tweet_and_favorited.0.pk }}">いいね解除</button>
+              {% if tweet.pk in favorited_tweet_id_list %}
+                <button id="unfavorite" class="btn btn-danger btn-rounded" name="{{ tweet.pk }}">いいね解除</button>
               {% else %}
-                <button id="favorite" class="btn btn-primary btn-rounded" name="{{ tweet_and_favorited.0.pk }}">いいね</button>
+                <button id="favorite" class="btn btn-primary btn-rounded" name="{{ tweet.pk }}">いいね</button>
               {% endif %}
             </div>
             <div align="right">
-              <a type="button" class="btn btn-outline-primary" "text-end" data-mdb-ripple-color="dark" href="{% url 'tweet:tweet_detail' tweet_and_favorited.0.pk %}">
+              <a type="button" class="btn btn-outline-primary" "text-end" data-mdb-ripple-color="dark" href="{% url 'tweet:tweet_detail' tweet.pk %}">
                 詳細
               </a>
             </div>
@@ -97,6 +97,7 @@
       return response.json()
     }).then(data => {
       selector_button = document.getElementsByName(data.tweet_id);
+      $(selector_button).attr('id', 'unfavorite');
       $(selector_button).toggleClass("btn-primary btn-danger");
       $(selector_button).html("いいね解除");
     }).catch(error => {
@@ -121,6 +122,7 @@
       return response.json()
     }).then(data => {
       selector_button = document.getElementsByName(data.tweet_id);
+      $(selector_button).attr('id', 'favorite');
       $(selector_button).toggleClass("btn-primary btn-danger");
       $(selector_button).html("いいね");
     }).catch(error => {

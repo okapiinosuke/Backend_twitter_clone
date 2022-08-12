@@ -41,11 +41,11 @@ def favorite_tweet_view(request, tweet_id):
     """
 
     if request.method == "POST":
-        favorite = request.user
-        favorited = get_object_or_404(Tweet, pk=tweet_id)
+        favorite_account = request.user
+        favorited_tweet = get_object_or_404(Tweet, pk=tweet_id)
 
         _, is_created = FavoriteConnection.objects.get_or_create(
-            favorite=favorite, favorited=favorited
+            favorite_account=favorite_account, favorited_tweet=favorited_tweet
         )
         if not is_created:
             return HttpResponseForbidden()
@@ -62,11 +62,13 @@ def unfavorite_tweet_view(request, tweet_id):
     """
 
     if request.method == "POST":
-        favorite = request.user
-        favorited = get_object_or_404(Tweet, pk=tweet_id)
+        favorite_account = request.user
+        favorited_tweet = get_object_or_404(Tweet, pk=tweet_id)
 
         favorite_connection = get_object_or_404(
-            FavoriteConnection, favorite=favorite, favorited=favorited
+            FavoriteConnection,
+            favorite_account=favorite_account,
+            favorited_tweet=favorited_tweet,
         )
         favorite_connection.delete()
         data = {"tweet_id": tweet_id}

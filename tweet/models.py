@@ -14,20 +14,21 @@ class Tweet(models.Model):
 
 
 class FavoriteConnection(models.Model):
-    favorite = models.ForeignKey(
-        Account, related_name="favorite", on_delete=models.CASCADE
+    favorite_account = models.ForeignKey(
+        Account, related_name="favorite_account", on_delete=models.CASCADE
     )
-    favorited = models.ForeignKey(
-        Tweet, related_name="favorited", on_delete=models.CASCADE
+    favorited_tweet = models.ForeignKey(
+        Tweet, related_name="favorited_tweet", on_delete=models.CASCADE
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["favorite", "favorited"], name="favorite_connection_unique"
+                fields=["favorite_account", "favorited_tweet"],
+                name="favorite_connection_unique",
             ),
         ]
 
     def __str__(self):
-        return f"{self.favorite.username} : {self.favorited.content}"
+        return f"{self.favorite_account.username} : {self.favorited_tweet.content}"

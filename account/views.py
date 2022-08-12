@@ -87,16 +87,14 @@ def home_view(request):
         for tweet_each_user in Account.objects.prefetch_related("tweet"):
             tweet_list = tweet_list | tweet_each_user.tweet.all()
         tweet_list = tweet_list.order_by("-id")
-        tweet_and_favorited_list = []
-        for i in range(tweet_list.count()):
-            tweet_and_favorited_list.append(
-                [
-                    tweet_list[i],
-                    FavoriteConnection.objects.filter(
-                        favorite=request.user, favorited=tweet_list[i]
-                    ).exists(),
-                ]
-            )
+        favorited_connection_list = (
+            FavoriteConnection.objects.select_related("favorited_tweet")
+            .filter(favorite_account=request.user)
+            .order_by("-id")
+        )
+        favorited_tweet_id_list = []
+        for favorited_connection in favorited_connection_list:
+            favorited_tweet_id_list.append(favorited_connection.favorited_tweet.id)
 
         return render(
             request,
@@ -104,7 +102,8 @@ def home_view(request):
             {
                 "profile": user_profile,
                 "form": form,
-                "tweet_and_favorited_list": tweet_and_favorited_list,
+                "tweet_list": tweet_list,
+                "favorited_tweet_id_list": favorited_tweet_id_list,
             },
         )
     elif request.method == "POST":
@@ -179,8 +178,8 @@ def account_detail_view(request, account_id):
             .order_by("-created_at")
         )
         favorite_connection_list = (
-            FavoriteConnection.objects.select_related("favorited")
-            .filter(favorite=account)
+            FavoriteConnection.objects.select_related("favorited_tweet")
+            .filter(favorite_account=account)
             .order_by("-id")
         )
         follow_flg = FollowConnection.objects.filter(
