@@ -80,7 +80,7 @@
           <p></p>
           <div class="card">
             <div class="card-body">
-              <a class="link-dark" href="{% url 'account:account_detail' favorite_connection.favorited_tweet.user.pk %}">{{ favorite_connection.favorited.user }}</a>
+              <a class="link-dark" href="{% url 'account:account_detail' favorite_connection.favorited_tweet.user.pk %}">{{ favorite_connection.favorited_tweet.user }}</a>
               <div class="break-word">
                 <p class="card-text">{{ favorite_connection.favorited_tweet.content | linebreaksbr }}</p>
               </div>

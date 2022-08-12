@@ -269,12 +269,26 @@ class FavoriteTest(TestCase):
         self.assertEqual(response.context["favorite_connection_list"].count(), 1)
 
         response = self.client.post(path=self.path)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(FavoriteConnection.objects.all().count(), 1)
         response = self.client.get(
             path=reverse("account:account_detail", args=[self.user1.id])
         )
         self.assertEqual(response.context["favorite_connection_list"].count(), 1)
+
+    def test_failure_post_with_not_exist_tweet(self):
+        """
+        存在しないツイートに対していいねした場合
+        """
+
+        self.assertEqual(FavoriteConnection.objects.all().count(), 0)
+        response = self.client.post(path=self.path)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(FavoriteConnection.objects.all().count(), 1)
+
+        response = self.client.post(path=reverse("tweet:favorite_tweet", args=[3]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(FavoriteConnection.objects.all().count(), 1)
 
     def test_other_requests(self):
         """
@@ -358,7 +372,7 @@ class UnFavoriteTest(TestCase):
         self.assertEqual(FavoriteConnection.objects.all().count(), 1)
 
         response = self.client.post(path=self.path)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(FavoriteConnection.objects.all().count(), 1)
 
         response = self.client.get(
@@ -381,12 +395,26 @@ class UnFavoriteTest(TestCase):
         response = self.client.post(
             path=reverse("tweet:unfavorite_tweet", args=[self.favorited_tweet1.id])
         )
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(FavoriteConnection.objects.all().count(), 2)
         response = self.client.get(
             path=reverse("account:account_detail", args=[self.user2.id])
         )
         self.assertEqual(response.context["favorite_connection_list"].count(), 0)
+
+    def test_failure_post_with_not_exist_tweet(self):
+        """
+        存在しないツイートに対していいね解除した場合
+        """
+
+        self.assertEqual(FavoriteConnection.objects.all().count(), 2)
+        response = self.client.post(path=self.path)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(FavoriteConnection.objects.all().count(), 1)
+
+        response = self.client.post(path=reverse("tweet:unfavorite_tweet", args=[3]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(FavoriteConnection.objects.all().count(), 1)
 
     def test_other_requests(self):
         """

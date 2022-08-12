@@ -83,18 +83,12 @@ def home_view(request):
     if request.method == "GET":
         user_profile = Profile.objects.get(user=request.user)
         form = TweetForm()
-        tweet_list = Tweet.objects.none()
-        for tweet_each_user in Account.objects.prefetch_related("tweet"):
-            tweet_list = tweet_list | tweet_each_user.tweet.all()
-        tweet_list = tweet_list.order_by("-id")
-        favorited_connection_list = (
-            FavoriteConnection.objects.select_related("favorited_tweet")
-            .filter(favorite_account=request.user)
-            .order_by("-id")
+        tweet_list = Tweet.objects.all().order_by("-id")
+        favorited_tweet_id_list = request.user.favorite_account.values_list(
+            "favorited_tweet_id", flat=True
         )
-        favorited_tweet_id_list = []
-        for favorited_connection in favorited_connection_list:
-            favorited_tweet_id_list.append(favorited_connection.favorited_tweet.id)
+        print(tweet_list)
+        print(favorited_tweet_id_list)
 
         return render(
             request,
@@ -113,8 +107,7 @@ def home_view(request):
             tweet = form.save(commit=False)
             tweet.user = request.user
             tweet.save()
-            form = TweetForm()
-        return redirect("/home/")
+        return redirect(reverse("account:home"))
 
     return HttpResponseNotAllowed(["GET", "POST"])
 
