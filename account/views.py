@@ -87,9 +87,6 @@ def home_view(request):
         favorited_tweet_id_list = request.user.favorite_account.values_list(
             "favorited_tweet_id", flat=True
         )
-        print(tweet_list)
-        print(favorited_tweet_id_list)
-
         return render(
             request,
             "account/home.html",
@@ -175,7 +172,7 @@ def account_detail_view(request, account_id):
             .filter(favorite_account=account)
             .order_by("-id")
         )
-        follow_flg = FollowConnection.objects.filter(
+        is_follow = FollowConnection.objects.filter(
             follower=request.user, followee=account
         ).exists()
         followee_num = FollowConnection.objects.filter(follower=account).count()
@@ -187,7 +184,7 @@ def account_detail_view(request, account_id):
                 "account": account,
                 "profile": account.profile,
                 "tweet_list": tweet_list,
-                "follow_flg": follow_flg,
+                "is_follow": is_follow,
                 "followee_num": followee_num,
                 "follower_num": follower_num,
                 "favorite_connection_list": favorite_connection_list,

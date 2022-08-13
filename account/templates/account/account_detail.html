@@ -10,7 +10,7 @@
         <p></p>
           {% if account != user %}
             <input type="hidden" name="hidden_data" value="">
-            {% if follow_flg %}
+            {% if is_follow %}
               <form action="{% url 'account:unfollow' account.pk %}" method="post">
                 {% csrf_token %}
                 <button type="submit" name="unfollow_button" class="btn btn-danger btn-rounded">フォロー解除</button>

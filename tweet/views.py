@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
@@ -42,16 +42,14 @@ def favorite_tweet_view(request, tweet_id):
 
     if request.method == "POST":
         favorite_account = request.user
-        favorited_tweet = Tweet.objects.filter(pk=tweet_id).first()
-        if not favorited_tweet:
-            return JsonResponse({"tweet_id": -1})
+        favorited_tweet = get_object_or_404(Tweet, pk=tweet_id)
 
         _, is_created = FavoriteConnection.objects.get_or_create(
             favorite_account=favorite_account, favorited_tweet=favorited_tweet
         )
         if not is_created:
-            return JsonResponse({"tweet_id": -1})
-        return JsonResponse({"tweet_id": tweet_id})
+            return HttpResponseBadRequest()
+        return JsonResponse({}, status=201)
 
 
 @login_required
@@ -63,15 +61,13 @@ def unfavorite_tweet_view(request, tweet_id):
 
     if request.method == "POST":
         favorite_account = request.user
-        favorited_tweet = Tweet.objects.filter(pk=tweet_id).first()
-        if not favorited_tweet:
-            return JsonResponse({"tweet_id": -1})
+        favorited_tweet = get_object_or_404(Tweet, pk=tweet_id)
 
         favorite_connection = FavoriteConnection.objects.filter(
             favorite_account=favorite_account,
             favorited_tweet=favorited_tweet,
         ).first()
         if not favorite_connection:
-            return JsonResponse({"tweet_id": -1})
+            return HttpResponseBadRequest()
         favorite_connection.delete()
-        return JsonResponse({"tweet_id": tweet_id})
+        return JsonResponse({}, status=204)
