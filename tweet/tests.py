@@ -191,22 +191,18 @@ class FavoriteTest(TestCase):
     """
 
     def setUp(self):
-        Account.objects.create_user(
+        self.user1 = Account.objects.create_user(
             email="sample1@example.com", username="sample1", password="instance1"
         )
         Profile.objects.create(user=Account.objects.get(username="sample1"))
-        Account.objects.create_user(
+        self.user2 = Account.objects.create_user(
             email="sample2@example.com", username="sample2", password="instance2"
         )
         Profile.objects.create(user=Account.objects.get(username="sample2"))
-
-        self.user1 = Account.objects.get(username="sample1")
-        self.user2 = Account.objects.get(username="sample2")
-
         self.favorited_tweet1 = Tweet.objects.create(user=self.user2, content="aaa")
         self.favorited_tweet2 = Tweet.objects.create(user=self.user1, content="bbb")
+        self.client.force_login(self.user1)
 
-        self.client.login(username="sample1", password="instance1")
         self.path = reverse("tweet:favorite_tweet", args=[self.favorited_tweet1.id])
 
     def test_favorite_tweet(self):
@@ -253,15 +249,9 @@ class FavoriteTest(TestCase):
         """
         二重でいいねした場合
         """
-        self.assertEqual(FavoriteConnection.objects.all().count(), 0)
-        response = self.client.post(path=self.path)
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(FavoriteConnection.objects.all().count(), 1)
-        self.assertEqual(
-            FavoriteConnection.objects.filter(
-                favorite_account=self.user1, favorited_tweet=self.favorited_tweet1
-            ).count(),
-            1,
+
+        FavoriteConnection.objects.create(
+            favorite_account=self.user1, favorited_tweet=self.favorited_tweet1
         )
         response = self.client.get(
             path=reverse("account:account_detail", args=[self.user1.id])
@@ -281,14 +271,9 @@ class FavoriteTest(TestCase):
         存在しないツイートに対していいねした場合
         """
 
-        self.assertEqual(FavoriteConnection.objects.all().count(), 0)
-        response = self.client.post(path=self.path)
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(FavoriteConnection.objects.all().count(), 1)
-
         response = self.client.post(path=reverse("tweet:favorite_tweet", args=[3]))
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(FavoriteConnection.objects.all().count(), 1)
+        self.assertEqual(FavoriteConnection.objects.all().count(), 0)
 
     def test_other_requests(self):
         """
@@ -296,6 +281,14 @@ class FavoriteTest(TestCase):
         """
 
         response = self.client.put(path=self.path)
+        self.assertEqual(response.status_code, 405)
+        self.assertIsInstance(response, HttpResponseNotAllowed)
+
+        response = self.client.delete(path=self.path)
+        self.assertEqual(response.status_code, 405)
+        self.assertIsInstance(response, HttpResponseNotAllowed)
+
+        response = self.client.patch(path=self.path)
         self.assertEqual(response.status_code, 405)
         self.assertIsInstance(response, HttpResponseNotAllowed)
 
@@ -422,5 +415,13 @@ class UnFavoriteTest(TestCase):
         """
 
         response = self.client.put(path=self.path)
+        self.assertEqual(response.status_code, 405)
+        self.assertIsInstance(response, HttpResponseNotAllowed)
+
+        response = self.client.delete(path=self.path)
+        self.assertEqual(response.status_code, 405)
+        self.assertIsInstance(response, HttpResponseNotAllowed)
+
+        response = self.client.patch(path=self.path)
         self.assertEqual(response.status_code, 405)
         self.assertIsInstance(response, HttpResponseNotAllowed)

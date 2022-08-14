@@ -80,13 +80,13 @@
   const csrftoken = getCookie('csrftoken');
 
   $(document).on("click", "#favorite_button", function() {
+    let url = ""
     if ($(this).attr('data-is-liked') == 'false') {
       url = "{% url 'tweet:favorite_tweet' 0 %}".replace("0", $(this).attr('name'));
     }
     else {
       url = "{% url 'tweet:unfavorite_tweet' 0 %}".replace("0", $(this).attr('name'));
     }
-    console.log(url);
     fetch(url, {
       method: 'POST',
       headers: {
