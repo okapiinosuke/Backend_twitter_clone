@@ -277,8 +277,12 @@ class FavoriteTest(TestCase):
 
     def test_other_requests(self):
         """
-        GET及びPOSTメソッド以外のリクエストを送信した場合
+        POSTメソッド以外のリクエストを送信した場合
         """
+
+        response = self.client.get(path=self.path)
+        self.assertEqual(response.status_code, 405)
+        self.assertIsInstance(response, HttpResponseNotAllowed)
 
         response = self.client.put(path=self.path)
         self.assertEqual(response.status_code, 405)
@@ -411,8 +415,12 @@ class UnFavoriteTest(TestCase):
 
     def test_other_requests(self):
         """
-        GET及びPOSTメソッド以外のリクエストを送信した場合
+        POSTメソッド以外のリクエストを送信した場合
         """
+
+        response = self.client.get(path=self.path)
+        self.assertEqual(response.status_code, 405)
+        self.assertIsInstance(response, HttpResponseNotAllowed)
 
         response = self.client.put(path=self.path)
         self.assertEqual(response.status_code, 405)

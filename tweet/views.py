@@ -34,7 +34,7 @@ def delete_tweet_view(request, tweet_id):
 
 
 @login_required
-@require_http_methods(["GET", "POST"])
+@require_http_methods(["POST"])
 def favorite_tweet_view(request, tweet_id):
     """
     ツイートをいいねするページ
@@ -53,7 +53,7 @@ def favorite_tweet_view(request, tweet_id):
 
 
 @login_required
-@require_http_methods(["GET", "POST"])
+@require_http_methods(["POST"])
 def unfavorite_tweet_view(request, tweet_id):
     """
     ツイートのいいねを解除するページ
