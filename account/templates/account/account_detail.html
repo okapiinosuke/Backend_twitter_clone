@@ -10,7 +10,7 @@
         <p></p>
           {% if account != user %}
             <input type="hidden" name="hidden_data" value="">
-            {% if follow_flg %}
+            {% if is_follow %}
               <form action="{% url 'account:unfollow' account.pk %}" method="post">
                 {% csrf_token %}
                 <button type="submit" name="unfollow_button" class="btn btn-danger btn-rounded">フォロー解除</button>
@@ -29,22 +29,71 @@
         </div>
       </div>
     </div>
-    {% for tweet in tweet_list %}
-      <p></p>
-      <div class="card">
-        <div class="card-body">
-          <a class="link-dark" href="{% url 'account:account_detail' tweet.user.pk %}">{{ tweet.user }}</a>
-          <div class="break-word">
-            <p class="card-text">{{ tweet.content | linebreaksbr }}</p>
+    <ul class="nav nav-tabs nav-fill mb-3" id="ex1" role="tablist">
+      <li class="nav-item" role="presentation">
+        <a
+          class="nav-link active"
+          id="ex1-tab-1"
+          data-mdb-toggle="tab"
+          href="#ex1-tabs-1"
+          role="tab"
+          aria-controls="ex1-tabs-1"
+          aria-selected="true"
+          >ツイート</a
+        >
+      </li>
+      <li class="nav-item" role="presentation">
+        <a
+          class="nav-link"
+          id="ex1-tab-2"
+          data-mdb-toggle="tab"
+          href="#ex1-tabs-2"
+          role="tab"
+          aria-controls="ex1-tabs-2"
+          aria-selected="false"
+          >いいね</a
+        >
+      </li>
+    </ul>
+
+    <div class="tab-content" id="ex1-content">
+      <div class="tab-pane fade show active" id="ex1-tabs-1" role="tabpanel" aria-labelledby="ex1-tab-1">
+        {% for tweet in tweet_list %}
+          <p></p>
+          <div class="card">
+            <div class="card-body">
+              <a class="link-dark" href="{% url 'account:account_detail' tweet.user.pk %}">{{ tweet.user }}</a>
+              <div class="break-word">
+                <p class="card-text">{{ tweet.content | linebreaksbr }}</p>
+              </div>
+              <div align="right">
+                <a type="button" class="btn btn-outline-primary" "text-end" data-mdb-ripple-color="dark" href="{% url 'tweet:tweet_detail' tweet.pk%}">
+                  詳細
+                </a>
+              </div>
+            </div>
           </div>
-          <div align="right">
-            <a type="button" class="btn btn-outline-primary" "text-end" data-mdb-ripple-color="dark" href="{% url 'tweet:tweet_detail' tweet.pk%}">
-              詳細
-            </a>
-          </div>
-        </div>
+        {% endfor %}
       </div>
-    {% endfor %}
+      <div class="tab-pane fade" id="ex1-tabs-2" role="tabpanel" aria-labelledby="ex1-tab-2">
+        {% for favorite_connection in favorite_connection_list %}
+          <p></p>
+          <div class="card">
+            <div class="card-body">
+              <a class="link-dark" href="{% url 'account:account_detail' favorite_connection.favorited_tweet.user.pk %}">{{ favorite_connection.favorited_tweet.user }}</a>
+              <div class="break-word">
+                <p class="card-text">{{ favorite_connection.favorited_tweet.content | linebreaksbr }}</p>
+              </div>
+              <div align="right">
+                <a type="button" class="btn btn-outline-primary" "text-end" data-mdb-ripple-color="dark" href="{% url 'tweet:tweet_detail' favorite_connection.favorited_tweet.pk%}">
+                  詳細
+                </a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
   </div>
 </div>
 

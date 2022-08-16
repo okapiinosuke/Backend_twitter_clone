@@ -13,7 +13,7 @@ from django.views.decorators.http import require_http_methods
 from .forms import SignUpForm, LoginForm, ProfileForm
 from .models import Account, Profile, FollowConnection
 from tweet.forms import TweetForm
-from tweet.models import Tweet
+from tweet.models import Tweet, FavoriteConnection
 
 
 def start_view(request):
@@ -83,14 +83,19 @@ def home_view(request):
     if request.method == "GET":
         user_profile = Profile.objects.get(user=request.user)
         form = TweetForm()
-        tweet_list = Tweet.objects.none()
-        for tweet_each_user in Account.objects.prefetch_related("tweet"):
-            tweet_list = tweet_list | tweet_each_user.tweet.all()
-        tweet_list = tweet_list.order_by("-id")
+        tweet_list = Tweet.objects.all().order_by("-id")
+        favorited_tweet_id_list = request.user.favorite_account.values_list(
+            "favorited_tweet_id", flat=True
+        )
         return render(
             request,
             "account/home.html",
-            {"profile": user_profile, "form": form, "tweet_list": tweet_list},
+            {
+                "profile": user_profile,
+                "form": form,
+                "tweet_list": tweet_list,
+                "favorited_tweet_id_list": favorited_tweet_id_list,
+            },
         )
     elif request.method == "POST":
         user_profile = Profile.objects.get(user=request.user)
@@ -99,8 +104,8 @@ def home_view(request):
             tweet = form.save(commit=False)
             tweet.user = request.user
             tweet.save()
-            form = TweetForm()
-        return redirect("/home/")
+        return redirect(reverse("account:home"))
+
     return HttpResponseNotAllowed(["GET", "POST"])
 
 
@@ -162,7 +167,12 @@ def account_detail_view(request, account_id):
             .filter(user=account)
             .order_by("-created_at")
         )
-        follow_flg = FollowConnection.objects.filter(
+        favorite_connection_list = (
+            FavoriteConnection.objects.select_related("favorited_tweet")
+            .filter(favorite_account=account)
+            .order_by("-id")
+        )
+        is_follow = FollowConnection.objects.filter(
             follower=request.user, followee=account
         ).exists()
         followee_num = FollowConnection.objects.filter(follower=account).count()
@@ -174,9 +184,10 @@ def account_detail_view(request, account_id):
                 "account": account,
                 "profile": account.profile,
                 "tweet_list": tweet_list,
-                "follow_flg": follow_flg,
+                "is_follow": is_follow,
                 "followee_num": followee_num,
                 "follower_num": follower_num,
+                "favorite_connection_list": favorite_connection_list,
             },
         )
     else:

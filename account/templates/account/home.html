@@ -27,26 +27,33 @@
           {% endfor %}
         </div>
         <div class="form-send">
-          <button type="submit" class="btn btn-primary btn-block mb-5">ツイート</button>
+          <button type="submit" name="tweet_button" class="btn btn-primary btn-block mb-5">ツイート</button>
         </div>
       </form>
     </div>
     <div class="col-md-5">
       {% for tweet in tweet_list %}
-      <p></p>
-      <div class="card">
-        <div class="card-body">
-          <a class="link-dark" href="{% url 'account:account_detail' tweet.user.pk %}">{{ tweet.user }}</a>
-          <div class="break-word">
-            <p class="card-text">{{ tweet.content | linebreaksbr }}</p>
-          </div>
-          <div align="right">
-            <a type="button" class="btn btn-outline-primary" "text-end" data-mdb-ripple-color="dark" href="{% url 'tweet:tweet_detail' tweet.pk %}">
-              詳細
-            </a>
+        <p></p>
+        <div class="card">
+          <div class="card-body">
+            <a class="link-dark" href="{% url 'account:account_detail' tweet.user.pk %}">{{ tweet.user }}</a>
+            <div class="break-word">
+              <p class="card-text">{{ tweet.content | linebreaksbr }}</p>
+            </div>
+            <div align="left">
+              {% if tweet.pk in favorited_tweet_id_list %}
+                <button id="favorite_button" data-is-liked="true" class="btn btn-danger btn-rounded" name="{{ tweet.pk }}">いいね解除</button>
+              {% else %}
+                <button id="favorite_button" data-is-liked="false" class="btn btn-primary btn-rounded" name="{{ tweet.pk }}">いいね</button>
+              {% endif %}
+            </div>
+            <div align="right">
+              <a type="button" class="btn btn-outline-primary" "text-end" data-mdb-ripple-color="dark" href="{% url 'tweet:tweet_detail' tweet.pk %}">
+                詳細
+              </a>
+            </div>
           </div>
         </div>
-      </div>
       {% endfor %}
     </div>
     <div class="col-md-2" "row d-flex justify-content-end">
@@ -57,5 +64,52 @@
     </div>
   </div>  
 </div>
+
+<script>
+  const getCookie = name =>{
+      if (document.cookie && document.cookie !== '') {
+          for (const cookie of document.cookie.split(';')){
+              const [key, value] = cookie.trim().split('=');
+              if(key === name) {
+                  return decodeURIComponent(value);
+              }
+          }
+      }
+  };
+
+  const csrftoken = getCookie('csrftoken');
+
+  $(document).on("click", "#favorite_button", function() {
+    let url = ""
+    if ($(this).attr('data-is-liked') == 'false') {
+      url = "{% url 'tweet:favorite_tweet' 0 %}".replace("0", $(this).attr('name'));
+    }
+    else {
+      url = "{% url 'tweet:unfavorite_tweet' 0 %}".replace("0", $(this).attr('name'));
+    }
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+        'X-CSRFToken': csrftoken,
+      },
+    })
+    .then(response => {
+      const selector_button = $(this);
+      if ($(selector_button).attr('data-is-liked') == 'false') {
+        $(selector_button).attr('data-is-liked', 'true');
+        $(selector_button).toggleClass("btn-primary btn-danger");
+        $(selector_button).html("いいね解除");
+      }
+      else {
+        $(selector_button).attr('data-is-liked', 'false');
+        $(selector_button).toggleClass("btn-primary btn-danger");
+        $(selector_button).html("いいね");
+      }
+    }).catch(error => {
+      console.log(error);
+    });
+  });
+</script>
 
 {% endblock %}
